@@ -29,5 +29,5 @@ COPY run.sh /usr/local/bin/run.sh
 USER logstash
 CMD ["/usr/local/bin/run.sh"]
 
-# Expose HTTP interface/port
+# Listen on HTTP interface/port: 5000
 EXPOSE 5000
