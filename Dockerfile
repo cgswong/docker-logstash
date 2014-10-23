@@ -7,7 +7,7 @@
 # 2014/10/16 cgwong [v0.1.0]: Initial creation.
 # ################################################################
 
-FROM dockerfile/java:oracle_java7
+FROM dockerfile/java:oracle-java7
 MAINTAINER Stuart Wong <cgs.wong@gmail.com>
 
 # Install Logstash
