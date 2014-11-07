@@ -21,4 +21,4 @@ It is usually paired with an Elasticsearch (as a search database) and Kibana (as
 docker run -d -p 5000:5000 cgswong/logstash
 ```
 
-It listens on TCP port 5000 for lines of JSON. You would typically link this to an Elasticsearch container (alias ES) that exposes port 9200.
+It listens on TCP port **5000** for lines of **JSON**. You would typically link this to an Elasticsearch container (alias **es**) that exposes port **9200**. The `logstash.conf` file uses the environment placeholder **ES_PORT_9200_TCP_ADDR** to detect the linked Elasticsearch container's bind_host. This relies on using the default TCP port (9200) with a container alias of **es**.
