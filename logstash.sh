@@ -6,12 +6,14 @@
 # LOG:
 # yyyy/mm/dd [user] [version]: [notes]
 # 2014/10/23 cgwong v0.1.0: Initial creation
-# 2014/10/23 cgwong v0.1.1: Added 'agent' flag. Added commented service call.
+# 2014/11/07 cgwong v0.1.1: Added 'agent' flag.
+#                           Added commented service call.
+#                           Added -f <config_file> flag.
 # #################################################################
 
 # if `docker run` first argument start with `--` the user is passing launcher arguments
 if [[ $# -lt 1 ]] || [[ "$1" == "--"* ]]; then
-  /opt/logstash/bin/logstash agent "$@"
+  /opt/logstash/bin/logstash agent -f /opt/logstash/logstash.conf "$@"
   ##sudo service restart logstash
 fi
 
