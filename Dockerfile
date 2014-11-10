@@ -13,6 +13,7 @@ MAINTAINER Stuart Wong <cgs.wong@gmail.com>
 # Setup environment
 ENV LOGSTASH_VERSION 1.4
 ##ENV LOGSTASH_VERSION 1.4.2
+ENV LOGSTASH_CFG_DIR /opt/logstash/conf
 
 # Install Logstash
 RUN wget -qO - http://packages.elasticsearch.org/GPG-KEY-elasticsearch | sudo apt-key add -
@@ -20,15 +21,19 @@ RUN echo "deb http://packages.elasticsearch.org/logstash/${LOGSTASH_VERSION}/deb
 RUN apt-get -y update && apt-get -y install logstash
 
 # Install contrib plugins
-##RUN /opt/logstash/bin/plugin install contrib
+RUN /opt/logstash/bin/plugin install contrib
 
 # Listen for connections on HTTP port/interface: 5000
 EXPOSE 5000
 
 USER logstash
 
-# Copy in logstash.conf file.
-COPY conf/logstash.conf /opt/logstash/logstash.conf
+# Create configuration file location
+# Copy in logstash.conf file
+# Expose as volume
+RUN mkdir -p ${LOGSTASH_CFG_DIR}
+COPY conf/logstash.conf ${LOGSTASH_CFG_DIR}/logstash.conf
+VOLUME ["${LOGSTASH_CFG_DIR}"]
 
 # Copy in entry script and start 
 COPY logstash.sh /usr/local/bin/logstash.sh
