@@ -21,8 +21,10 @@ Logstash is set to listen on TCP port **5000** for lines of **JSON**. You would 
 The environment variable `ES_CLUSTER_NAME` should be set to the name of the Elasticsearch container (must match the name used in the Elasticsearch configuration file). This can be set using the `-e` flag when executing `docker run`. The default is `es_cluster01`.
 
 You can use your own configuration file by:
-    - Setting the `-v` flag when executing `docker run` to mount your own configuration file via the exposed `/opt/logstash/conf` volume.
-    - Overriding the **LOGSTASH_CFG_URI** environment variable which is set using the `-e` flag when executing `docker run`. This will download, via wget, your configuration file.
+
+- Setting the `-v` flag when executing `docker run` to mount your own configuration file via the exposed `/opt/logstash/conf` volume.
+
+- Overriding the **LOGSTASH_CFG_URI** environment variable which is set using the `-e` flag when executing `docker run`. This will download, via wget, your configuration file.
 
 To run logstash and connect to a linked Elasticsearch container (which should ideally be started first):
 ```sh
