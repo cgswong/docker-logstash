@@ -15,7 +15,7 @@ MAINTAINER Stuart Wong <cgs.wong@gmail.com>
 
 # Setup environment
 ENV LOGSTASH_VERSION 1.4
-##ENV LOGSTASH_FULL_VERSION 1.4.2
+ENV LOGSTASH_FULL_VERSION 1.4.2
 ENV LOGSTASH_CFG_DIR /opt/logstash/conf
 
 # Install Logstash
