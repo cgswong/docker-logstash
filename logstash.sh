@@ -11,15 +11,24 @@
 #                           Added -f <config_file> flag.
 # 2014/11/10 cgwong v0.1.2: Added environment variable for configuration file.
 #                           Added download option for configuration file.
+# 2014/11/11 cgwong v0.2.0: Added further environment variables.
 # #################################################################
 
-# Set location of logstash configuration file
+# Set environment variables
 LOGSTASH_CFG_FILE=${LOGSTASH_CFG_FILE:-/opt/logstash/conf/logstash.conf}
+ES_CLUSTER_NAME=${ES_CLUSTER_NAME:-"es_cluster01"}
+ES_PORT_9200_TCP_ADDR=${ES_PORT_9200_TCP_ADDR:-localhost}
+ES_PORT_9200_TCP_PORT=${ES_PORT_9200_TCP_PORT:-9200}
 
 # Use the LOGSTASH_CONFIG_URL env var to download and use custom logstash.conf file.
 if [ ! -z $LOGSTASH_CFG_URI ]; then
     echo "Downloading custom configuration file ..."
     wget $LOGSTASH_CONFIG_URI -O $LOGSTASH_CFG_FILE
+else
+  # Process the linked container env variables.
+  sed -e "s/ES_CLUSTER_NAME/${ES_CLUSTER_NAME}/g" -i ${LOGSTASH_CFG_FILE}
+  sed -e "s/ES_PORT_9200_TCP_ADDR/${ES_PORT_9200_TCP_ADDR}/g" -i ${LOGSTASH_CFG_FILE}
+  sed -e "s/ES_PORT_9200_TCP_PORT/${ES_PORT_9200_TCP_PORT}/g" -i ${LOGSTASH_CFG_FILE}
 fi
 
 # if `docker run` first argument start with `--` the user is passing launcher arguments

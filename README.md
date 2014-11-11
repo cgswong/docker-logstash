@@ -16,13 +16,13 @@ It is usually paired with an Elasticsearch instance (search database) and Kibana
    (alternatively, you can build an image from Dockerfile: `docker build -t="cgswong/logstash" github.com/cgswong/docker-logstash`)
 
 ### Usage
-Logstash is set to listen on TCP port **5000** for lines of **JSON**. You would typically link this to an Elasticsearch container (alias **es**) that exposes port **9200**. The default `logstash.conf` file uses the environment placeholder **ES_PORT_9200_TCP_ADDR** when using a linked Elasticsearch container to get the bind_host. This relies on using the default TCP port (9200) with a container alias of **es**.
+Logstash is set to listen on TCP port **5000** for lines of **JSON**. You would typically link this container to an Elasticsearch container (alias **es**) that exposes port **9200**. The default `logstash.conf` file uses the Docker linked container environment placeholder **ES_PORT_9200_TCP_ADDR** when using a linked Elasticsearch container. This relies on using the default TCP port (9200) with a container alias of **es**.
 
-The environment variable `ES_CLUSTER_NAME` should be set to the name of the Elasticsearch container (must match the name used in the Elasticsearch configuration file). This can be set using the `-e` flag when executing `docker run`.
+The environment variable `ES_CLUSTER_NAME` should be set to the name of the Elasticsearch container (must match the name used in the Elasticsearch configuration file). This can be set using the `-e` flag when executing `docker run`. The default is `es_cluster01`.
 
 You can use your own configuration file by:
     - Setting the `-v` flag when executing `docker run` to mount your own configuration file via the exposed `/opt/logstash/conf` volume.
-    - Overriding the **LOGSTASH_CFG_URI** environment variable which is set using the `-e` flag when executing `docker run`. This will download via wget your configuration file.
+    - Overriding the **LOGSTASH_CFG_URI** environment variable which is set using the `-e` flag when executing `docker run`. This will download, via wget, your configuration file.
 
 To run logstash and connect to a linked Elasticsearch container (which should ideally be started first):
 ```sh
