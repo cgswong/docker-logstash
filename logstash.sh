@@ -12,10 +12,12 @@
 # 2014/11/10 cgwong v0.1.2: Added environment variable for configuration file.
 #                           Added download option for configuration file.
 # 2014/11/11 cgwong v0.2.0: Added further environment variables.
+# 2014/12/04 cgwong v0.2.1: Added further environment variable.
 # #################################################################
 
 # Set environment variables
-LOGSTASH_CFG_FILE=${LOGSTASH_CFG_FILE:-/opt/logstash/conf/logstash.conf}
+LOGSTASH_HOME=${LOGSTASH_HOME:-/opt/logstash}
+LOGSTASH_CFG_FILE=${LOGSTASH_CFG_FILE:-"${LOGSTASH_HOME}/conf/logstash.conf"}
 ES_CLUSTER_NAME=${ES_CLUSTER_NAME:-"es_cluster01"}
 ES_PORT_9200_TCP_ADDR=${ES_PORT_9200_TCP_ADDR:-localhost}
 ES_PORT_9200_TCP_PORT=${ES_PORT_9200_TCP_PORT:-9200}
@@ -33,7 +35,7 @@ fi
 
 # if `docker run` first argument start with `--` the user is passing launcher arguments
 if [[ $# -lt 1 ]] || [[ "$1" == "--"* ]]; then
-  exec /opt/logstash/bin/logstash agent -f ${LOGSTASH_CFG_FILE} web "$@"
+  exec ${LOGSTASH_HOME}/bin/logstash agent -f ${LOGSTASH_CFG_FILE} web "$@"
   ##sudo service restart logstash
 fi
 
