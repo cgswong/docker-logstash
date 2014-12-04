@@ -16,7 +16,7 @@ MAINTAINER Stuart Wong <cgs.wong@gmail.com>
 
 # Setup environment
 ##ENV LOGSTASH_VERSION 1.4
-ENV LOGSTASH_FULL_VERSION 1.4.2
+ENV LOGSTASH_VERSION 1.4.2
 ENV LOGSTASH_BASE /opt
 ENV LOGSTASH_HOME ${LOGSTASH_BASE}/logstash
 ENV LOGSTASH_CFG_DIR ${LOGSTASH_HOME}/conf
@@ -39,9 +39,9 @@ RUN wget https://download.elasticsearch.org/logstash/logstash/logstash-${LOGSTAS
 
 # Install contrib plugins
 # Repo version has '-modified' attached to version so need below for contrib to install successfully.
-##RUN sed -e "s/${LOGSTASH_FULL_VERSION}-modified/${LOGSTASH_FULL_VERSION}/" -i ${LOGSTASH_HOME}/lib/logstash/version.rb
+##RUN sed -e "s/${LOGSTASH_VERSION}-modified/${LOGSTASH_VERSION}/" -i ${LOGSTASH_HOME}/lib/logstash/version.rb
 RUN ["${LOGSTASH_HOME}/bin/plugin", "install", "contrib"]
-##RUN sed -e "s/${LOGSTASH_FULL_VERSION}/${LOGSTASH_FULL_VERSION}-modified/" -i ${LOGSTASH_HOME}/lib/logstash/version.rb
+##RUN sed -e "s/${LOGSTASH_VERSION}/${LOGSTASH_VERSION}-modified/" -i ${LOGSTASH_HOME}/lib/logstash/version.rb
 
 # Configure environment
 RUN groupadd -r ${LOGSTASH_GROUP} \
