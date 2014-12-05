@@ -8,7 +8,9 @@
 # 2014/11/10 cgwong v0.2.0: Included contrib plugins, switched to tar download as a result.
 #                           Added new environment variable.
 #                           Correct issue with contribs not installing.
-# 2014/12/04 cgwong v0.2.1: Switched to version specific. Used more environment variables.
+# 2014/12/04 cgwong v0.2.1: Switched to version specific. 
+#                           Used more environment variables.
+#                           Corrected directory bug.
 # ################################################################
 
 FROM dockerfile/java:oracle-java7
@@ -46,7 +48,7 @@ RUN ${LOGSTASH_HOME}/bin/plugin install contrib
 # Configure environment
 RUN groupadd -r ${LOGSTASH_GROUP} \
   && useradd -M -r -g ${LOGSTASH_GROUP} -d ${LOGSTASH_HOME} -s /sbin/nologin -c "LogStash Service User" ${LOGSTASH_USER} \
-  && chown -R ${LOGSTASH_USER}:${LOGSTASH_GROUP} ${LOGSTASH_HOME}
+  && chown -R ${LOGSTASH_USER}:${LOGSTASH_GROUP} logstash-${LOGSTASH_VERSION}
 
 # Listen for connections on HTTP port/interface: 5000
 EXPOSE 5000
