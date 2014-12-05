@@ -40,7 +40,7 @@ RUN wget https://download.elasticsearch.org/logstash/logstash/logstash-${LOGSTAS
 # Install contrib plugins
 # Repo version has '-modified' attached to version so need below for contrib to install successfully.
 ##RUN sed -e "s/${LOGSTASH_VERSION}-modified/${LOGSTASH_VERSION}/" -i ${LOGSTASH_HOME}/lib/logstash/version.rb
-RUN ["${LOGSTASH_HOME}/bin/plugin", "install", "contrib"]
+RUN ${LOGSTASH_HOME}/bin/plugin install contrib
 ##RUN sed -e "s/${LOGSTASH_VERSION}/${LOGSTASH_VERSION}-modified/" -i ${LOGSTASH_HOME}/lib/logstash/version.rb
 
 # Configure environment
