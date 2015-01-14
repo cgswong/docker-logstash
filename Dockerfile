@@ -11,57 +11,48 @@
 # 2014/12/04 cgwong v0.2.1: Switched to version specific. 
 #                           Used more environment variables.
 #                           Corrected directory bug.
+# 2015/01/014 cgwong v0.3.0: General cleanup, added more variable usage.
 # ################################################################
 
 FROM dockerfile/java:oracle-java7
 MAINTAINER Stuart Wong <cgs.wong@gmail.com>
 
 # Setup environment
-##ENV LOGSTASH_VERSION 1.4
-ENV LOGSTASH_VERSION 1.4.2
-ENV LOGSTASH_BASE /opt
-ENV LOGSTASH_HOME ${LOGSTASH_BASE}/logstash
-ENV LOGSTASH_CFG_DIR ${LOGSTASH_HOME}/conf
-ENV LOGSTASH_USER logstash
-ENV LOGSTASH_GROUP logstash
+ENV LS_VERSION 1.4.2
+ENV LS_BASE /opt
+ENV LS_HOME ${LS_BASE}/logstash
+ENV LS_CFG_DIR ${LS_HOME}/conf
+ENV LS_USER logstash
+ENV LS_GROUP logstash
+ENV LS_GROUP logstash
+ENV LS_EXEC /usr/local/bin/logstash.sh
 
 # Install Logstash
-##RUN wget -qO - http://packages.elasticsearch.org/GPG-KEY-elasticsearch | sudo apt-key add -
-##RUN echo "deb http://packages.elasticsearch.org/logstash/${LOGSTASH_VERSION}/debian stable main" >> /etc/apt/sources.list
-##RUN apt-get -y update \
-##  && DEBIAN_FRONTEND=noninteractive \
-##  apt-get -y install wget \
-##  logstash
-
-WORKDIR ${LOGSTASH_BASE}
-RUN wget https://download.elasticsearch.org/logstash/logstash/logstash-${LOGSTASH_VERSION}.tar.gz \
-  && tar -zxf logstash-${LOGSTASH_VERSION}.tar.gz \
-  && rm logstash-${LOGSTASH_VERSION}.tar.gz \
-  && ln -s logstash-${LOGSTASH_VERSION} logstash
+WORKDIR ${LS_BASE}
+RUN curl -s https://download.elasticsearch.org/logstash/logstash/logstash-${LS_VERSION}.tar.gz | tar zx -C ${LS_BASE} \
+  && ln -s logstash-${LS_VERSION} logstash
 
 # Install contrib plugins
-# Repo version has '-modified' attached to version so need below for contrib to install successfully.
-##RUN sed -e "s/${LOGSTASH_VERSION}-modified/${LOGSTASH_VERSION}/" -i ${LOGSTASH_HOME}/lib/logstash/version.rb
-RUN ${LOGSTASH_HOME}/bin/plugin install contrib
-##RUN sed -e "s/${LOGSTASH_VERSION}/${LOGSTASH_VERSION}-modified/" -i ${LOGSTASH_HOME}/lib/logstash/version.rb
+RUN ${LS_HOME}/bin/plugin install contrib
 
 # Configure environment
-RUN groupadd -r ${LOGSTASH_GROUP} \
-  && useradd -M -r -g ${LOGSTASH_GROUP} -d ${LOGSTASH_HOME} -s /sbin/nologin -c "LogStash Service User" ${LOGSTASH_USER} \
-  && chown -R ${LOGSTASH_USER}:${LOGSTASH_GROUP} logstash-${LOGSTASH_VERSION}
+RUN groupadd -r ${LS_GROUP} \
+  && useradd -M -r -g ${LS_GROUP} -d ${LS_HOME} -s /sbin/nologin -c "LogStash Service User" ${LS_USER} \
+  && chown -R ${LS_USER}:${LS_GROUP} logstash-${LS_VERSION}
 
 # Listen for connections on HTTP port/interface: 5000
 EXPOSE 5000
 
-USER ${LOGSTASH_USER}
+USER ${LS_USER}
 
 # Create configuration file location
 # Copy in logstash.conf file
 # Expose as volume
-RUN mkdir -p ${LOGSTASH_CFG_DIR}
-COPY conf/logstash.conf ${LOGSTASH_CFG_DIR}/logstash.conf
-VOLUME ["${LOGSTASH_CFG_DIR}"]
+RUN mkdir -p ${LS_CFG_DIR}
+COPY conf/logstash.conf ${LS_CFG_DIR}/logstash.conf
+VOLUME ["${LS_CFG_DIR}"]
 
 # Copy in entry script and start 
-COPY logstash.sh /usr/local/bin/logstash.sh
-ENTRYPOINT ["/usr/local/bin/logstash.sh"]
+COPY logstash.sh ${LS_EXEC}
+RUN chmod +x ${LS_EXEC}
+ENTRYPOINT ["$LS_EXEC"]
