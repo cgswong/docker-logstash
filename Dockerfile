@@ -40,6 +40,11 @@ RUN groupadd -r ${LS_GROUP} \
   && useradd -M -r -g ${LS_GROUP} -d ${LS_HOME} -s /sbin/nologin -c "LogStash Service User" ${LS_USER} \
   && chown -R ${LS_USER}:${LS_GROUP} logstash-${LS_VERSION}
 
+# Copy in entry script
+COPY logstash.sh ${LS_EXEC}
+RUN chmod +x ${LS_EXEC} \
+  && chown $LS_USER:$LS_GROUP $LS_EXEC
+
 # Listen for connections on HTTP port/interface: 5000
 EXPOSE 5000
 
@@ -52,7 +57,4 @@ RUN mkdir -p ${LS_CFG_DIR}
 COPY conf/logstash.conf ${LS_CFG_DIR}/logstash.conf
 VOLUME ["${LS_CFG_DIR}"]
 
-# Copy in entry script and start 
-COPY logstash.sh ${LS_EXEC}
-RUN chmod +x ${LS_EXEC}
 ENTRYPOINT ["$LS_EXEC"]
