@@ -25,8 +25,7 @@ ES_PORT_9200_TCP_ADDR=${ES_PORT_9200_TCP_ADDR:-localhost}
 ES_PORT_9200_TCP_PORT=${ES_PORT_9200_TCP_PORT:-9200}
 
 # Use the LS_CONFIG_URI env var to download and use custom logstash.conf file.
-if [ ! -z $LS_CFG_URI ]; then
-    echo "Downloading custom configuration file ..."
+if [ ! -z $LS_CFG_URI ] ; then
     wget $LS_CONFIG_URI -O $LS_CFG_FILE
 else
   # Process the linked container env variables.

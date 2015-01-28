@@ -6,7 +6,7 @@ It is usually paired with an Elasticsearch instance (search database) and Kibana
 
 ### Base Docker Image
 
-* [dockerfile/java:oracle-java7](http://dockerfile.github.io/#/java)
+* [dockerfile/java:oracle-java8](http://dockerfile.github.io/#/java)
 
 ### Installation
 
