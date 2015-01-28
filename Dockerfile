@@ -31,26 +31,27 @@ ENV LS_EXEC /usr/local/bin/logstash.sh
 # Install Logstash
 WORKDIR ${LS_BASE}
 
+RUN curl -s https://download.elasticsearch.org/logstash/logstash/logstash-${LS_VERSION}.tar.gz | tar zx -C ${LS_BASE} \
+  && ln -s logstash-${LS_VERSION} logstash \
+  && mkdir -p ${LS_CFG_DIR} \
+
+# Configure environment
 # Copy in files
 COPY logstash.sh ${LS_EXEC}
 COPY conf/logstash.conf ${LS_CFG_DIR}/logstash.conf
 
-RUN curl -s https://download.elasticsearch.org/logstash/logstash/logstash-${LS_VERSION}.tar.gz | tar zx -C ${LS_BASE} \
-  && ln -s logstash-${LS_VERSION} logstash
-
-# Install contrib plugins
-RUN ${LS_HOME}/bin/plugin install contrib
-
-# Configure environment
 RUN groupadd -r ${LS_GROUP} \
   && useradd -M -r -g ${LS_GROUP} -d ${LS_HOME} -s /sbin/nologin -c "LogStash Service User" ${LS_USER} \
   && chown -R ${LS_USER}:${LS_GROUP} logstash-${LS_VERSION} \
   && chmod +x ${LS_EXEC} \
-  && mkdir -p ${LS_CFG_DIR} \
   && chown $LS_USER:$LS_GROUP $LS_EXEC ${LS_CFG_DIR}
 
-# Listen for connections on HTTP port/interface: 5000
+# Listen for JSON connections on HTTP port/interface: 5000
 EXPOSE 5000
+# Listen for SYSLOG connections on TCP/UDP 5010, RFC3164 format on 5015 and from logstash-forwarder on 5020
+EXPOSE 5010 5015 5020
+# Listen for Log4j connections on TCP 5025
+EXPOSE 5025
 
 USER ${LS_USER}
 
