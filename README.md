@@ -6,7 +6,7 @@ It is usually paired with an Elasticsearch instance (search database) and Kibana
 
 ### Base Docker Image
 
-* [dockerfile/java:oracle-java8](http://dockerfile.github.io/#/java)
+* [cgswong/java:oraclejdk8](https://registry.hub.docker.com/u/cgswong/java/)
 
 ### Installation
 
@@ -32,7 +32,7 @@ You can use your own configuration file by:
 
 - Setting the `-v` flag when executing `docker run` to mount your own configuration file via the exposed `/opt/logstash/conf` volume.
 
-- Overriding the **LOGSTASH_CFG_URI** environment variable which is set using the `-e` flag when executing `docker run`. This will download, via wget, your configuration file.
+- Overriding the **LOGSTASH_CFG_URI** environment variable which is set using the `-e` flag when executing `docker run`will download, via wget, your configuration file.
 
 To run logstash and connect to a linked Elasticsearch container (which should ideally be started first):
 ```sh
