@@ -13,25 +13,26 @@
 #                           Corrected directory bug.
 # 2015/01/14 cgwong v0.3.0: General cleanup, added more variable usage.
 # 2015/01/28 cgwong v0.4.0: Java 8. Some optimizations to build.
+# 2015/02/02 cgwong v1.0.0: Added curl installation, fixed tar issue.
 # ################################################################
 
-FROM dockerfile/java:oracle-java8
+FROM cgswong/java:oracleJDK8
 MAINTAINER Stuart Wong <cgs.wong@gmail.com>
 
 # Setup environment
 ENV LS_VERSION 1.4.2
-ENV LS_BASE /opt
-ENV LS_HOME ${LS_BASE}/logstash
+ENV LS_HOME /opt/logstash
 ENV LS_CFG_DIR ${LS_HOME}/conf
 ENV LS_USER logstash
-ENV LS_GROUP logstash
 ENV LS_GROUP logstash
 ENV LS_EXEC /usr/local/bin/logstash.sh
 
 # Install Logstash
-WORKDIR ${LS_BASE}
-
-RUN curl -s https://download.elasticsearch.org/logstash/logstash/logstash-${LS_VERSION}.tar.gz | tar zx -C ${LS_BASE} \
+WORKDIR /opt
+RUN apt-get -yq update && DEBIAN_FRONTEND=noninteractive apt-get -yq install curl \
+  && apt-get -y clean && apt-get -y autoclean && apt-get -y autoremove \
+  && rm -rf /var/lib/apt/lists/* \
+  && curl -s https://download.elasticsearch.org/logstash/logstash/logstash-${LS_VERSION}.tar.gz | tar zxf - \
   && ln -s logstash-${LS_VERSION} logstash \
   && mkdir -p ${LS_CFG_DIR} \
 
@@ -53,7 +54,7 @@ EXPOSE 5010 5015 5020
 # Listen for Log4j connections on TCP 5025
 EXPOSE 5025
 
-USER ${LS_USER}
+##USER ${LS_USER}
 
 # Expose as volume
 VOLUME ["${LS_CFG_DIR}"]

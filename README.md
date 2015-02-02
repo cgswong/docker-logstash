@@ -6,7 +6,7 @@ It is usually paired with an Elasticsearch instance (search database) and Kibana
 
 ### Base Docker Image
 
-* [cgswong/java:oraclejdk8](https://registry.hub.docker.com/u/cgswong/java/)
+* [cgswong/java:oracleJDK8](https://registry.hub.docker.com/u/cgswong/java/)
 
 ### Installation
 
@@ -38,3 +38,21 @@ To run logstash and connect to a linked Elasticsearch container (which should id
 ```sh
 docker run -d --link elasticsearch:es -p 9200:9200 -p 5000:5000 -p 5010:5010 -p 5015:5015 -p 5020:5020 --name logstash cgswong/logstash
 ```
+
+### Validation Testing
+To test the setup you will need to send some data to the Logstash container. This can be done as shown below:
+```sh
+curl -XPOST <container_host>:9200/logstash-2015.01.07/logs/1 -d '{"@timestamp": "2015-01-07T20:11:45.000Z","@version": "1","count": 2048,"average": 1523.33,"host": "elasticsearch.com"}'
+```
+
+You can also send some test data using:
+```sh
+echo '{"@timestamp": "2015-01-07T20:11:45.000Z","@version": "1","count": 2048,"average": 1523.33,"host": "elasticsearch.com"}' | nc -w 1  <container_host> 5000
+```
+
+To verify the indexes have been created in your Elasticsearch instance:
+```sh
+curl -s http://<container_host>:9200/_status?pretty=true
+```
+
+The data should also be available in your Kibana dashboard. Ensure the same date/time period is used when searching as was done in the sample commands.
