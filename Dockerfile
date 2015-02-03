@@ -26,14 +26,17 @@ ENV LS_USER logstash
 ENV LS_GROUP logstash
 ENV LS_EXEC /usr/local/bin/logstash.sh
 
-# Install Logstash
+# Install Logstash and confd
 WORKDIR /opt
 RUN apt-get -yq update && DEBIAN_FRONTEND=noninteractive apt-get -yq install curl \
   && apt-get -y clean && apt-get -y autoclean && apt-get -y autoremove \
   && rm -rf /var/lib/apt/lists/* \
   && curl -s https://download.elasticsearch.org/logstash/logstash/logstash-${LS_VERSION}.tar.gz | tar zxf - \
   && ln -s logstash-${LS_VERSION} logstash \
-  && mkdir -p ${LS_CFG_DIR}
+  && mkdir -p ${LS_CFG_DIR} \
+  && curl -O https://github.com/kelseyhightower/confd/releases/download/v0.6.3/confd-0.6.3-linux-amd64 \
+  && mv confd /usr/local/bin/confd \
+  && chmod +x /usr/local/bin/confd
 
 # Install some plugins
 # This may not work based on previous testing on this beta release.
