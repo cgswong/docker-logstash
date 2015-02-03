@@ -15,36 +15,39 @@
 # 2015/01/28 cgwong v0.4.0: Java 8. Some optimizations to build.
 # ################################################################
 
-FROM dockerfile/java:oracle-java8
+FROM cgswong/java:oracleJDK8
 MAINTAINER Stuart Wong <cgs.wong@gmail.com>
 
 # Setup environment
-ENV LS_VERSION 1.4.2
-ENV LS_BASE /opt
-ENV LS_HOME ${LS_BASE}/logstash
+ENV LS_VERSION 1.5.0.beta1
+ENV LS_HOME /opt/logstash
 ENV LS_CFG_DIR ${LS_HOME}/conf
 ENV LS_USER logstash
-ENV LS_GROUP logstash
 ENV LS_GROUP logstash
 ENV LS_EXEC /usr/local/bin/logstash.sh
 
 # Install Logstash
-WORKDIR ${LS_BASE}
-
-RUN curl -s https://download.elasticsearch.org/logstash/logstash/logstash-${LS_VERSION}.tar.gz | tar zx -C ${LS_BASE} \
+WORKDIR /opt
+RUN apt-get -yq update && DEBIAN_FRONTEND=noninteractive apt-get -yq install curl \
+  && apt-get -y clean && apt-get -y autoclean && apt-get -y autoremove \
+  && rm -rf /var/lib/apt/lists/* \
+  && curl -s https://download.elasticsearch.org/logstash/logstash/logstash-${LS_VERSION}.tar.gz | tar zxf - \
   && ln -s logstash-${LS_VERSION} logstash \
-  && mkdir -p ${LS_CFG_DIR} \
+  && mkdir -p ${LS_CFG_DIR}
+
+# Install some plugins
+# This may not work based on previous testing on this beta release.
+##RUN ${LS_HOME}/bin/plugin install logstash-input-kafka \
+##  && ${LS_HOME}/bin/plugin install logstash-output-kafka
 
 # Configure environment
 # Copy in files
-COPY logstash.sh ${LS_EXEC}
-COPY conf/logstash.conf ${LS_CFG_DIR}/logstash.conf
+COPY ./src/ /
 
 RUN groupadd -r ${LS_GROUP} \
   && useradd -M -r -g ${LS_GROUP} -d ${LS_HOME} -s /sbin/nologin -c "LogStash Service User" ${LS_USER} \
-  && chown -R ${LS_USER}:${LS_GROUP} logstash-${LS_VERSION} \
-  && chmod +x ${LS_EXEC} \
-  && chown $LS_USER:$LS_GROUP $LS_EXEC ${LS_CFG_DIR}
+  && chown -R ${LS_USER}:${LS_GROUP} ${LS_HOME} ${LS_EXEC} \
+  && chmod +x ${LS_EXEC}
 
 # Listen for JSON connections on HTTP port/interface: 5000
 EXPOSE 5000
@@ -53,9 +56,9 @@ EXPOSE 5010 5015 5020
 # Listen for Log4j connections on TCP 5025
 EXPOSE 5025
 
-USER ${LS_USER}
+##USER ${LS_USER}
 
-# Expose as volume
+# Expose volumes
 VOLUME ["${LS_CFG_DIR}"]
 
 ENTRYPOINT ["/usr/local/bin/logstash.sh"]
