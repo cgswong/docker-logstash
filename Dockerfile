@@ -38,7 +38,7 @@ RUN apt-get -yq update && DEBIAN_FRONTEND=noninteractive apt-get -yq install cur
 
 # Configure environment
 # Copy in files
-COPY src/opt/logstash/conf/logstash.conf ${LS_CFG_DIR}
+COPY src/opt/logstash/conf/logstash.conf ${LS_CFG_DIR}/
 COPY src/usr/local/bin/logstash.sh /usr/local/bin/
 
 RUN groupadd -r ${LS_GROUP} \
