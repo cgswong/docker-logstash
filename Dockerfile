@@ -38,7 +38,8 @@ RUN apt-get -yq update && DEBIAN_FRONTEND=noninteractive apt-get -yq install cur
 
 # Configure environment
 # Copy in files
-ADD ./src /
+COPY ./src /
+COPY ./src/usr/local/bin/logstash.sh /usr/local/bin/
 
 RUN groupadd -r ${LS_GROUP} \
   && useradd -M -r -g ${LS_GROUP} -d ${LS_HOME} -s /sbin/nologin -c "LogStash Service User" ${LS_USER} \
@@ -57,4 +58,4 @@ EXPOSE 5025
 # Expose as volume
 VOLUME ["${LS_CFG_DIR}"]
 
-ENTRYPOINT ["/usr/local/bin/logstash.sh"]
+CMD ["/usr/local/bin/logstash.sh"]
