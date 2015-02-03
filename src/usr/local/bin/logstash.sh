@@ -19,14 +19,14 @@
 
 # Set environment variables
 LS_HOME=${LS_HOME:-/opt/logstash}
-LS_CFG_FILE=${LS_CFG_FILE:-"$LS_HOME/conf/logstash.conf"}
+LS_CFG_FILE=${LS_CFG_FILE:-"/etc/logstash/conf.d/logstash.conf"}
 ES_CLUSTER_NAME=${ES_CLUSTER_NAME:-"es_cluster01"}
 ES_PORT_9200_TCP_ADDR=${ES_PORT_9200_TCP_ADDR:-localhost}
 ES_PORT_9200_TCP_PORT=${ES_PORT_9200_TCP_PORT:-9200}
 
 # Use the LS_CONFIG_URI env var to download and use custom logstash.conf file.
 if [ ! -z $LS_CFG_URI ] ; then
-    wget $LS_CONFIG_URI -O $LS_CFG_FILE
+    curl -o ${LS_CFG_FILE} ${LS_CONFIG_URI}
 else
   # Process the linked container env variables.
   sed -e "s/ES_CLUSTER_NAME/${ES_CLUSTER_NAME}/g" -i ${LS_CFG_FILE}

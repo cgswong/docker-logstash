@@ -23,7 +23,7 @@ It is usually paired with an Elasticsearch instance (search database) and Kibana
 ### Usage
 Logstash is set to listen for:
 - lines of _JSON_ on TCP port **5000**
-- _SYSLOG_ on TCP and UDP ports **5010**, **5015** (for RFC3164 format), **5020** (from Logstash Forwarder)
+- _SYSLOG_ on TCP and UDP ports **5010**, **5020** (from Logstash Forwarder)
 - Log4J on TCP port **5025**
  
 Also listens for its local syslog files, and stdin.
@@ -41,7 +41,13 @@ You can use your own configuration file by:
 To run logstash and connect to a linked Elasticsearch container (which should ideally be started first):
 
 ```sh
-docker run -d --link elasticsearch:es -p 5000:5000 -p 5010:5010 -p 5015:5015 -p 5020:5020 --name logstash cgswong/logstash
+docker run -d --link elasticsearch:es -p 5000:5000 -p 5010:5010 -p 5020:5020 -p 5025:5025 --name logstash cgswong/logstash
+```
+
+You can also use a shared storage volume to load in and use your own **logstash.conf** file:
+
+```sh
+docker run -d --link elasticsearch:es -p 5000:5000 -p 5010:5010 -p 5020:5020 -p 5025:5025 -v /tmp/logstash.conf:/etc/logstash/conf.d/logstash.conf --name logstash cgswong/logstash
 ```
 
 ### Validation Testing
