@@ -21,10 +21,11 @@ MAINTAINER Stuart Wong <cgs.wong@gmail.com>
 # Setup environment
 ENV LS_VERSION 1.5.0.beta1
 ENV LS_HOME /opt/logstash
-ENV LS_CFG_DIR ${LS_HOME}/conf
+ENV LS_CFG_DIR /etc/logstash/conf.d
 ENV LS_USER logstash
 ENV LS_GROUP logstash
 ENV LS_EXEC /usr/local/bin/logstash.sh
+ENV LS_SSL /etc/logstash/ssl
 
 # Install Logstash and confd
 WORKDIR /opt
@@ -36,7 +37,8 @@ RUN apt-get -yq update && DEBIAN_FRONTEND=noninteractive apt-get -yq install cur
   && mkdir -p ${LS_CFG_DIR} \
   && curl -O https://github.com/kelseyhightower/confd/releases/download/v0.6.3/confd-0.6.3-linux-amd64 \
   && mv confd /usr/local/bin/confd \
-  && chmod +x /usr/local/bin/confd
+  && chmod +x /usr/local/bin/confd \
+  && mkdir -p ${LS_SSL}
 
 # Install some plugins
 # This may not work based on previous testing on this beta release.
@@ -45,23 +47,23 @@ RUN apt-get -yq update && DEBIAN_FRONTEND=noninteractive apt-get -yq install cur
 
 # Configure environment
 # Copy in files
-COPY src /
+COPY src/ /
 
 RUN groupadd -r ${LS_GROUP} \
   && useradd -M -r -g ${LS_GROUP} -d ${LS_HOME} -s /sbin/nologin -c "LogStash Service User" ${LS_USER} \
-  && chown -R ${LS_USER}:${LS_GROUP} ${LS_HOME} ${LS_EXEC} \
+  && chown -R ${LS_USER}:${LS_GROUP} ${LS_HOME}/ ${LS_EXEC} ${LS_CFG_DIR} ${LS_SSL} \
   && chmod +x ${LS_EXEC}
 
 # Listen for JSON connections on HTTP port/interface: 5000
 EXPOSE 5000
-# Listen for SYSLOG connections on TCP/UDP 5010, RFC3164 format on 5015 and from logstash-forwarder on 5020
-EXPOSE 5010 5015 5020
+# Listen for SYSLOG connections on TCP/UDP 5010, and from logstash-forwarder on 5020
+EXPOSE 5010 5020
 # Listen for Log4j connections on TCP 5025
 EXPOSE 5025
 
 ##USER ${LS_USER}
 
 # Expose volumes
-VOLUME ["${LS_CFG_DIR}"]
+VOLUME ["${LS_CFG_DIR}", "${LS_SSL}"]
 
 CMD ["/usr/local/bin/logstash.sh"]

@@ -5,40 +5,47 @@
 #
 # LOG:
 # yyyy/mm/dd [user] [version]: [notes]
-# 2014/10/23 cgwong v0.1.0: Initial creation
-# 2014/11/07 cgwong v0.1.1: Added 'agent' flag.
-#                           Added commented service call.
-#                           Added -f <config_file> flag.
-# 2014/11/10 cgwong v0.1.2: Added environment variable for configuration file.
-#                           Added download option for configuration file.
-# 2014/11/11 cgwong v0.2.0: Added further environment variables.
-# 2014/12/04 cgwong v0.2.1: Added further environment variable.
-# 2015/01/14 cgwong v0.3.0: Use variable short forms.
-#                           Remove 'agent' and 'web' options in preparation for v1.5 change.
+# 2015/02/02 cgwong v0.1.0: Use confd for configuration management.
 # #################################################################
+
+# Fail hard and fast
+set -eo pipefail
 
 # Set environment variables
 LS_HOME=${LS_HOME:-/opt/logstash}
-LS_CFG_FILE=${LS_CFG_FILE:-"$LS_HOME/conf/logstash.conf"}
-ES_CLUSTER_NAME=${ES_CLUSTER_NAME:-"es_cluster01"}
-ES_PORT_9200_TCP_ADDR=${ES_PORT_9200_TCP_ADDR:-localhost}
-ES_PORT_9200_TCP_PORT=${ES_PORT_9200_TCP_PORT:-9200}
+LS_CFG_FILE=${LS_CFG_FILE:-"/etc/logstash/conf.d/logstash.conf"}
+LS_SSL=/etc/logstash/ssl
 
-# Use the LS_CONFIG_URI env var to download and use custom logstash.conf file.
-if [ ! -z $LS_CFG_URI ] ; then
-    wget $LS_CONFIG_URI -O $LS_CFG_FILE
+KV_TYPE=${KV_TYPE:-etcd}
+KV_HOST=${KV_HOST:-172.17.8.101}
+KV_PORT=${KV_PORT:-4001}
+KV_URL=${KV_HOST}:${KV_PORT}
+
+echo "[logstash] booting container. KV store: $KV_TYPE"
+
+# Loop until confd has updated the logstash config
+until confd -onetime -backend $KV_TYPE -node $KV_URL -config-file /etc/confd/conf.d/logstash.conf.toml; do
+  echo "[logstash] waiting for confd to refresh logstash.conf (waiting for ElasticSearch to be available)"
+  sleep 5
+done
+
+# Create a new SSL certificate for Logstash-Forwarder
+openssl req -x509 -batch -nodes -newkey rsa:2048 -keyout ${LS_SSL}/logstash-forwarder.key -out ${LS_SSL}/logstash-forwarder.crt
+
+# Publish SSL cert/key to KV store
+if [ "$KV_TYPE" == "etcd" ]; then
+  # Etcd as KV store
+  curl -L $KV_URL/v2/keys/logstash/ssl_certificate -XPUT --data-urlencode value@${LS_SSL}/logstash-forwarder.crt
+  curl -L $KV_URL/v2/keys/logstash/ssl_private_key -XPUT --data-urlencode value@${LS_SSL}/logstash-forwarder.key
 else
-  # Process the linked container env variables.
-  sed -e "s/ES_CLUSTER_NAME/${ES_CLUSTER_NAME}/g" -i ${LS_CFG_FILE}
-  sed -e "s/ES_PORT_9200_TCP_ADDR/${ES_PORT_9200_TCP_ADDR}/g" -i ${LS_CFG_FILE}
-  sed -e "s/ES_PORT_9200_TCP_PORT/${ES_PORT_9200_TCP_PORT}/g" -i ${LS_CFG_FILE}
+  # Assume it's consul KV otherwise
+  curl -L $KV_URL/v1/kv/logstash/ssl_certificate -XPUT --data-urlencode value@${LS_SSL}/logstash-forwarder.crt
+  curl -L $KV_URL/v1/kv/logstash/ssl_private_key -XPUT --data-urlencode value@${LS_SSL}/logstash-forwarder.key
 fi
 
 # if `docker run` first argument start with `--` the user is passing launcher arguments
 if [[ $# -lt 1 ]] || [[ "$1" == "--"* ]]; then
   exec ${LS_HOME}/bin/logstash -f ${LS_CFG_FILE} "$@"
-##  exec ${LS_HOME}/bin/logstash agent -f ${LS_CFG_FILE} web "$@"
-  ##sudo service restart logstash
 fi
 
 # As argument is not Logstash, assume user want to run his own process, for sample a `bash` shell to explore this image
