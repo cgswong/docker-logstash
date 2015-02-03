@@ -25,7 +25,7 @@ ENV LS_HOME /opt/logstash
 ENV LS_CFG_DIR ${LS_HOME}/conf
 ENV LS_USER logstash
 ENV LS_GROUP logstash
-ENV LS_EXEC /usr/local/sbin/logstash.sh
+ENV LS_EXEC /usr/local/bin/logstash.sh
 
 # Install Logstash
 WORKDIR /opt
@@ -39,7 +39,7 @@ RUN apt-get -yq update && DEBIAN_FRONTEND=noninteractive apt-get -yq install cur
 # Configure environment
 # Copy in files
 COPY ./src /
-COPY ./src/usr/local/bin/logstash.sh /usr/local/bin/
+COPY src/usr/local/bin/logstash.sh /usr/local/bin/
 
 RUN groupadd -r ${LS_GROUP} \
   && useradd -M -r -g ${LS_GROUP} -d ${LS_HOME} -s /sbin/nologin -c "LogStash Service User" ${LS_USER} \
