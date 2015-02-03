@@ -12,9 +12,13 @@ It is usually paired with an Elasticsearch instance (search database) and Kibana
 
 1. Install [Docker](https://www.docker.com/).
 
-2. Download [automated build](https://registry.hub.docker.com/u/cgswong/logstash/) from public [Docker Hub Registry](https://registry.hub.docker.com/): `docker pull cgswong/logstash`
+2. Download [automated build](https://registry.hub.docker.com/u/cgswong/logstash/) from public [Docker Hub Registry](https://registry.hub.docker.com/): 
 
-   (alternatively, you can build an image from Dockerfile: `docker build -t="cgswong/logstash" github.com/cgswong/docker-logstash`)
+  `docker pull cgswong/logstash`
+
+  (alternatively, you can build an image from Dockerfile:
+
+  `docker build -t="cgswong/logstash" github.com/cgswong/docker-logstash`)
 
 ### Usage
 Logstash is set to listen for:
@@ -32,25 +36,29 @@ You can use your own configuration file by:
 
 - Setting the `-v` flag when executing `docker run` to mount your own configuration file via the exposed `/opt/logstash/conf` volume.
 
-- Overriding the **LOGSTASH_CFG_URI** environment variable which is set using the `-e` flag when executing `docker run`will download, via wget, your configuration file.
+- Overriding the **LOGSTASH_CFG_URI** environment variable which is set using the `-e` flag when executing `docker run` will download, via wget, your configuration file.
 
 To run logstash and connect to a linked Elasticsearch container (which should ideally be started first):
+
 ```sh
 docker run -d --link elasticsearch:es -p 5000:5000 -p 5010:5010 -p 5015:5015 -p 5020:5020 --name logstash cgswong/logstash
 ```
 
 ### Validation Testing
 To test the setup you will need to send some data to the Logstash container. This can be done as shown below:
+
 ```sh
 curl -XPOST <container_host>:9200/logstash-2015.01.07/logs/1 -d '{"@timestamp": "2015-01-07T20:11:45.000Z","@version": "1","count": 2048,"average": 1523.33,"host": "elasticsearch.com"}'
 ```
 
 You can also send some test data using:
+
 ```sh
 echo '{"@timestamp": "2015-01-07T20:11:45.000Z","@version": "1","count": 2048,"average": 1523.33,"host": "elasticsearch.com"}' | nc -w 1  <container_host> 5000
 ```
 
 To verify the indexes have been created in your Elasticsearch instance:
+
 ```sh
 curl -s http://<container_host>:9200/_status?pretty=true
 ```
