@@ -34,7 +34,7 @@ RUN apt-get -yq update && DEBIAN_FRONTEND=noninteractive apt-get -yq install cur
   && rm -rf /var/lib/apt/lists/* \
   && curl -s https://download.elasticsearch.org/logstash/logstash/logstash-${LS_VERSION}.tar.gz | tar zxf - \
   && ln -s logstash-${LS_VERSION} logstash \
-  && mkdir -p ${LS_CFG_DIR} \
+  && mkdir -p ${LS_CFG_DIR}
 
 # Configure environment
 # Copy in files
@@ -43,7 +43,7 @@ COPY src/usr/local/bin/logstash.sh /usr/local/bin/
 
 RUN groupadd -r ${LS_GROUP} \
   && useradd -M -r -g ${LS_GROUP} -d ${LS_HOME} -s /sbin/nologin -c "LogStash Service User" ${LS_USER} \
-  && chown -R ${LS_USER}:${LS_GROUP} ${LS_EXEC} ${LS_HOME} \
+  && chown -R ${LS_USER}:${LS_GROUP} ${LS_EXEC} ${LS_HOME}/ \
   && chmod +x ${LS_EXEC}
 
 # Listen for JSON connections on HTTP port/interface: 5000
