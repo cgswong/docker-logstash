@@ -25,7 +25,7 @@ ENV LS_HOME /opt/logstash
 ENV LS_CFG_DIR ${LS_HOME}/conf
 ENV LS_USER logstash
 ENV LS_GROUP logstash
-ENV LS_EXEC /usr/local/bin/logstash.sh
+ENV LS_EXEC /usr/local/sbin/logstash.sh
 
 # Install Logstash
 WORKDIR /opt
