@@ -13,7 +13,7 @@
 #                           Corrected directory bug.
 # 2015/01/14 cgwong v0.3.0: General cleanup, added more variable usage.
 # 2015/01/28 cgwong v0.4.0: Java 8. Some optimizations to build.
-# 2015/02/02 cgwong v1.0.0: Added curl installation, fixed tar issue.
+# 2015/02/02 cgwong v1.0.0: Added curl installation, fixed tar issue. Added src directory for complete copy.
 # ################################################################
 
 FROM cgswong/java:oracleJDK8
@@ -38,8 +38,7 @@ RUN apt-get -yq update && DEBIAN_FRONTEND=noninteractive apt-get -yq install cur
 
 # Configure environment
 # Copy in files
-COPY logstash.sh ${LS_EXEC}
-COPY conf/logstash.conf ${LS_CFG_DIR}/logstash.conf
+COPY src/ /
 
 RUN groupadd -r ${LS_GROUP} \
   && useradd -M -r -g ${LS_GROUP} -d ${LS_HOME} -s /sbin/nologin -c "LogStash Service User" ${LS_USER} \
