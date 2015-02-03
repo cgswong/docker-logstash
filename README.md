@@ -36,7 +36,7 @@ You can use your own configuration file by:
 
 To run logstash and connect to a linked Elasticsearch container (which should ideally be started first):
 ```sh
-docker run -d --link elasticsearch:es -p 9200:9200 -p 5000:5000 -p 5010:5010 -p 5015:5015 -p 5020:5020 --name logstash cgswong/logstash
+docker run -d --link elasticsearch:es -p 5000:5000 -p 5010:5010 -p 5015:5015 -p 5020:5020 --name logstash cgswong/logstash
 ```
 
 ### Validation Testing

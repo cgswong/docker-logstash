@@ -43,9 +43,8 @@ COPY conf/logstash.conf ${LS_CFG_DIR}/logstash.conf
 
 RUN groupadd -r ${LS_GROUP} \
   && useradd -M -r -g ${LS_GROUP} -d ${LS_HOME} -s /sbin/nologin -c "LogStash Service User" ${LS_USER} \
-  && chown -R ${LS_USER}:${LS_GROUP} logstash-${LS_VERSION} \
-  && chmod +x ${LS_EXEC} \
-  && chown $LS_USER:$LS_GROUP $LS_EXEC ${LS_CFG_DIR}
+  && chown -R ${LS_USER}:${LS_GROUP} ${LS_EXEC} ${LS_HOME} \
+  && chmod +x ${LS_EXEC}
 
 # Listen for JSON connections on HTTP port/interface: 5000
 EXPOSE 5000
