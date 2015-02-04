@@ -30,7 +30,10 @@ until confd -onetime -backend $KV_TYPE -node $KV_URL -config-file /etc/confd/con
 done
 
 # Create a new SSL certificate for Logstash-Forwarder
-openssl req -x509 -batch -nodes -newkey rsa:2048 -keyout ${LS_SSL}/logstash-forwarder.key -out ${LS_SSL}/logstash-forwarder.crt
+if [ ! -f "$LS_SSL/logstash-forwarder.key" ]; then
+  echo "[logstash] Generating new logstash-forwarder key"
+  openssl req -x509 -batch -nodes -newkey rsa:4096 -keyout "$LS_SSL/logstash-forwarder.key" -out "$LS_SSL/logstash-forwarder.crt"
+fi
 
 # Publish SSL cert/key to KV store
 if [ "$KV_TYPE" == "etcd" ]; then

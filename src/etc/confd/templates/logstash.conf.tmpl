@@ -160,8 +160,8 @@ output {
 # Send output to Elasticsearch over HTTP interface.
   elasticsearch {
     protocol  => "http"
-    host      => "{{ .es_host }}"
-    port      => "{{ .es_host_port }}"
+    host      => "{{ .es-host }}"
+    port      => "{{ .es_port }}"
     cluster   => "{{ .es_cluster }}"
   }
 
