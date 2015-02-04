@@ -24,7 +24,7 @@ ExecStartPost=/usr/bin/etcdctl set /logstash/host ${COREOS_PUBLIC_IPV4}
 #ExecStartPost=/usr/bin/curl -X PUT -d ${COREOS_PUBLIC_IPV4} http://${COREOS_PUBLIC_IPV4}:8500/v1/kv/logstash/host
 ExecStop=/usr/bin/docker kill logstash
 ExecStopPost=/usr/bin/etcdctl rm --dir --recursive /logstash
-#ExecStopPost=/usr/bin/curl -X DELETE http://${COREOS_PUBLIC_IPV4}:8500/v1/kv/logstash/?recurse
+#ExecStopPost=/usr/bin/curl -X DELETE http://${COREOS_PUBLIC_IPV4}:8500/v1/kv/logstash?recurse
 
 [X-Fleet]
 Conflicts=logstash.service

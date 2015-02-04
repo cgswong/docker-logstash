@@ -30,6 +30,7 @@ ENV LS_SSL /etc/logstash/ssl
 # Install Logstash and confd
 WORKDIR /opt
 RUN apt-get -yq update && DEBIAN_FRONTEND=noninteractive apt-get -yq install curl \
+#  supervisor \
   && apt-get -y clean && apt-get -y autoclean && apt-get -y autoremove \
   && rm -rf /var/lib/apt/lists/* \
   && curl -s https://download.elasticsearch.org/logstash/logstash/logstash-${LS_VERSION}.tar.gz | tar zxf - \

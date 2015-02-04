@@ -160,9 +160,8 @@ output {
 # Send output to Elasticsearch over HTTP interface.
   elasticsearch {
     protocol  => "http"
-    host      => "{{ .es-host }}"
-    port      => "{{ .es_port }}"
     cluster   => "{{ .es_cluster }}"
+    host      => [{{ range $server := .es_host }} "{{ $server.Value }}", {{ end }}]
   }
 
   # Send output to Kafka topic
