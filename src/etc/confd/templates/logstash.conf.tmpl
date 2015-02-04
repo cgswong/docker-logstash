@@ -161,7 +161,7 @@ output {
   elasticsearch {
     protocol  => "http"
     host      => "{{ .es_host }}"
-    port      => "{{ .es_port }}"
+    port      => "{{ .es_host_port }}"
     cluster   => "{{ .es_cluster }}"
   }
 

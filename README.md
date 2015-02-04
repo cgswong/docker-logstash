@@ -27,8 +27,7 @@ To receive events from **logstash-forwarder** we create a new SSL key pair on ev
 
 This container requires a dependent Elasticsearch container (alias **es**) that also registers itself within the same KV store, using the expected keys of:
 
-- `/es/host`: IPV4 address of Elasticsearch host
-- `/es/port`: Elasticsearch port
+- `/es/host`: IPV4 address of Elasticsearch host with subkey for port
 - `/es/cluster`: Elasticsearch cluster name
 
 We will wait until those keys present themselves, then use **confd** to update the Logstash configuration file `logstash.conf`, setting those values within the file, then starting Logstash.

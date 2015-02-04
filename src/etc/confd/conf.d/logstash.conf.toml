@@ -9,8 +9,6 @@ dest = "/etc/logstash/conf.d/logstash.conf"
 # The consul keys or directory to watch.  This is where the information to fill in the template will come from.
 keys = [
     "/es/host",
-    "/es/port",
-    "/es/cluster",
 ]
 
 # File ownership and mode information
