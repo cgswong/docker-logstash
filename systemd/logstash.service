@@ -18,13 +18,14 @@ After=consul.service
 EnvironmentFile=/etc/environment
 
 ExecStartPre=/usr/bin/docker pull cgswong/logstash
-#ExecStart=/usr/bin/docker run --rm --name logstash -e KV_TYPE=consul -e KV_PORT=8500 -e KV_HOST=${COREOS_PUBLIC_IPV4} -p 5000:5000 -p 5010:5010 -p 5020:5020 -p 5025:5025 cgswong/logstash
-ExecStart=/usr/bin/docker run --rm --name logstash -e KV_HOST=${COREOS_PUBLIC_IPV4} -p 5000:5000 -p 5010:5010 -p 5020:5020 -p 5025:5025 cgswong/logstash
+#ExecStart=/usr/bin/docker run --rm --name %p -e KV_TYPE=consul -e KV_PORT=8500 -e KV_HOST=${COREOS_PUBLIC_IPV4} -p 5000:5000 -p 5010:5010 -p 5020:5020 -p 5025:5025 cgswong/logstash
+ExecStart=/usr/bin/docker run --rm --name %p -e KV_HOST=${COREOS_PUBLIC_IPV4} -p 5000:5000 -p 5010:5010 -p 5020:5020 -p 5025:5025 cgswong/logstash
 ExecStartPost=/usr/bin/etcdctl set /logstash/host ${COREOS_PUBLIC_IPV4}
 #ExecStartPost=/usr/bin/curl -X PUT -d ${COREOS_PUBLIC_IPV4} http://${COREOS_PUBLIC_IPV4}:8500/v1/kv/logstash/host
-ExecStop=/usr/bin/docker kill logstash
+ExecStop=/usr/bin/docker stop %p
+ExecStop=/usr/bin/docker kill %p
 ExecStopPost=/usr/bin/etcdctl rm --dir --recursive /logstash
 #ExecStopPost=/usr/bin/curl -X DELETE http://${COREOS_PUBLIC_IPV4}:8500/v1/kv/logstash?recurse
 
 [X-Fleet]
-Conflicts=logstash.service
+Conflicts=%p.service
