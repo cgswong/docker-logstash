@@ -27,14 +27,14 @@ To receive events from **logstash-forwarder** we create a new SSL key pair (if o
 
 This container requires a dependent Elasticsearch container (alias **es**) that also registers itself within the same KV store, using the expected keys of:
 
-- `/es/host`: IPV4 address of Elasticsearch host (may have port as well attached)
+- `/es/host`: IPV4 address of Elasticsearch host (may have port as well in format [host]:[port])
 - `/es/cluster`: Elasticsearch cluster name
 
 We will wait until those keys present themselves, then use **confd** to update the Logstash configuration file `logstash.conf`, setting those values within the file, then starting Logstash.
 
 **Note: In a production environment a Redis buffer or Kafka queue should be used between Logstash and Elasticsearch to make sure log events are stored in such mechanisms if Elasticsearch is unavailable.**
 
-A systemd unit file is included here, which shows how this unit would be started via Fleet. Both options using the default etcd and optional consul (commented) KV store are presented. To do a default run (i.e. using etcd):
+A systemd unit file is included (here)[https://github.com/cgswong/docker-logstash/blob/confd/systemd/logstash.service], which shows how this unit would be started via Fleet. Both options using the default etcd and optional consul (commented) KV store are presented. To do a default run (i.e. using etcd):
 
 ```sh
 source /etc/environment
@@ -47,14 +47,10 @@ Clean up after stopping: `etcdctl rm --dir --recursive /logstash`
 To use consul:
 ```sh
 source /etc/environment
-docker run --rm --name logstash -e KV_TYPE=consul -e KV_PORT=8500 -e KV_HOST=${COREOS_PUBLIC_IPV4} -p 5000:5000 -p 5010:5010 -p 5020:5020 -p 5025:5025 cgswong/logstash
+docker run --rm --name logstash -e KV_TYPE=consul -e KV_HOST=${COREOS_PUBLIC_IPV4} -p 5000:5000 -p 5010:5010 -p 5020:5020 -p 5025:5025 cgswong/logstash
 curl -X PUT -d ${COREOS_PUBLIC_IPV4} http://${COREOS_PUBLIC_IPV4}:8500/v1/kv/logstash/host
 ```
 
 Clean up after stopping: `curl -X DELETE http://${COREOS_PUBLIC_IPV4}:8500/v1/kv/logstash/?recurse`
 
-### To Do
-- Enable running without KV store backend, using environment variables as well?
-- Enable running using a default configuration if nothing is specified except a linked ES container?
-- Provide better KV design.
-- Install some useful Logstash plugins such as Kafka integration.
+**Note: The startup procedures previously shown assume you are using CoreOS (with either etcd or consul as your KV store). If you are not using CoreOS then simply substitute the `source /etc/environment` and `${COREOS_PUBLIC_IPV4}` statements with the appropriate OS specific equivalents.**

@@ -18,7 +18,13 @@ LS_SSL=/etc/logstash/ssl
 
 KV_TYPE=${KV_TYPE:-etcd}
 KV_HOST=${KV_HOST:-172.17.8.101}
-KV_PORT=${KV_PORT:-4001}
+if [ "$KV_TYPE" = "etcd" ]; then
+  # Set as default for etcd unless otherwise stated
+  KV_PORT=${KV_PORT:-4001}
+else
+  # Set as default for consul unless otherwise stated
+  KV_PORT=${KV_PORT:-8500}
+fi
 KV_URL=${KV_HOST}:${KV_PORT}
 
 echo "[logstash] booting container. KV store: $KV_TYPE"
