@@ -8,7 +8,7 @@
 # 2014/11/10 cgwong v0.2.0: Included contrib plugins, switched to tar download as a result.
 #                           Added new environment variable.
 #                           Correct issue with contribs not installing.
-# 2014/12/04 cgwong v0.2.1: Switched to version specific. 
+# 2014/12/04 cgwong v0.2.1: Switched to version specific.
 #                           Used more environment variables.
 #                           Corrected directory bug.
 # 2015/01/14 cgwong v0.3.0: General cleanup, added more variable usage.
@@ -36,7 +36,7 @@ RUN apt-get -yq update && DEBIAN_FRONTEND=noninteractive apt-get -yq install cur
   && curl -s https://download.elasticsearch.org/logstash/logstash/logstash-${LS_VERSION}.tar.gz | tar zxf - \
   && ln -s logstash-${LS_VERSION} logstash \
   && mkdir -p ${LS_CFG_DIR} \
-  && curl -o /usr/local/bin/confd https://github.com/kelseyhightower/confd/releases/download/v0.6.3/confd-0.6.3-linux-amd64 \
+  && curl -sL -o /usr/local/bin/confd https://github.com/kelseyhightower/confd/releases/download/v0.6.3/confd-0.6.3-linux-amd64 \
   && chmod +x /usr/local/bin/confd \
   && mkdir -p ${LS_SSL}
 

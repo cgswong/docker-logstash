@@ -14,6 +14,8 @@ After=elasticsearch.service
 After=consul.service
 
 [Service]
+TimeoutStartSec=0
+
 # Get CoreOS environmental variables
 EnvironmentFile=/etc/environment
 
