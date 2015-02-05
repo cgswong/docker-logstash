@@ -53,4 +53,10 @@ curl -X PUT -d ${COREOS_PUBLIC_IPV4} http://${COREOS_PUBLIC_IPV4}:8500/v1/kv/log
 
 Clean up after stopping: `curl -X DELETE http://${COREOS_PUBLIC_IPV4}:8500/v1/kv/logstash/?recurse`
 
+### Changing Defaults
+A few environment variables can be passed via the Docker `-e` flag to do some further configuration:
+
+  - KV_TYPE: Sets the type of KV store to use as the backend. Options are etcd (default) and consul.
+  - KV_PORT: Sets the port used in connecting to the KV store which defaults to 4001 for etcd and 8500 for consul.
+
 **Note: The startup procedures previously shown assume you are using CoreOS (with either etcd or consul as your KV store). If you are not using CoreOS then simply substitute the `source /etc/environment` and `${COREOS_PUBLIC_IPV4}` statements with the appropriate OS specific equivalents.**
