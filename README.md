@@ -23,11 +23,11 @@ Logstash is set to listen for:
 - Log4J on TCP port **5025**
 - stdin (for testing purposes).
 
-To receive events from **logstash-forwarder** we create a new SSL key pair on every boot, and store the new certificate and private key in the specified KV store (i.e. either the default etcd or consul). These keys can then be downloaded by any logstash-forwarder process to facilitate configuration. During the systemd startup we register the IP address of Logstash service within the same KV store to make ourselves public to other processes.
+To receive events from **logstash-forwarder** we create a new SSL key pair (if one does not yet exist in our KV store), and store the new certificate and private key in the specified KV store (i.e. either the default etcd or consul). These keys can then be downloaded by any logstash-forwarder process to facilitate configuration. During the systemd startup we register the IP address of Logstash service within the same KV store to make ourselves public to other processes.
 
 This container requires a dependent Elasticsearch container (alias **es**) that also registers itself within the same KV store, using the expected keys of:
 
-- `/es/host`: IPV4 address of Elasticsearch host with subkey for port
+- `/es/host`: IPV4 address of Elasticsearch host (may have port as well attached)
 - `/es/cluster`: Elasticsearch cluster name
 
 We will wait until those keys present themselves, then use **confd** to update the Logstash configuration file `logstash.conf`, setting those values within the file, then starting Logstash.
@@ -54,6 +54,7 @@ curl -X PUT -d ${COREOS_PUBLIC_IPV4} http://${COREOS_PUBLIC_IPV4}:8500/v1/kv/log
 Clean up after stopping: `curl -X DELETE http://${COREOS_PUBLIC_IPV4}:8500/v1/kv/logstash/?recurse`
 
 ### To Do
-- Enable running without KV store backend, using environment variables.
-- Enable running using a default configuration if nothing is specified except a linked ES container.
-- Enable running to a multi-node Elasticsearch cluster.
+- Enable running without KV store backend, using environment variables as well?
+- Enable running using a default configuration if nothing is specified except a linked ES container?
+- Provide better KV design.
+- Install some useful Logstash plugins such as Kafka integration.
