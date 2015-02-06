@@ -116,13 +116,13 @@ filter {
 
   # Apache Access Log filter
   if [type] == "apache-access" {
-    grok { 
+    grok {
       match => { "message" => "%{COMBINEDAPACHELOG}" }
       }
   }
   # Nginx Access Log filter
   if [type] == "nginx-access" {
-    grok { 
+    grok {
       match => { "message" => "%{NGINXACESS}" }
     }
   }
@@ -161,7 +161,7 @@ output {
   elasticsearch {
     protocol  => "http"
     cluster   => "{{ .es_cluster }}"
-    host      => [{{ range $server := .es_host }} "{{ $server.Value }}", {{ end }}]
+    host      => [{{ range getvs "/es/host/*" }} "{{.}}",{{ end }}]
   }
 
   # Send output to Kafka topic
@@ -195,7 +195,7 @@ output {
 #    timing  => [ "tomcat.indextime", "%{indextime}" ]
 #  }
 
-# Send output metrics to graphite for graphing 
+# Send output metrics to graphite for graphing
 ##  graphite {
 ##  }
 }
