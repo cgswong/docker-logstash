@@ -44,12 +44,12 @@ fi
 # Publish SSL cert/key to KV store
 if [ "$KV_TYPE" == "etcd" ]; then
   # Etcd as KV store
-  curl -L $KV_URL/v2/keys/logstash/ssl_certificate -XPUT --data-urlencode value@${LS_SSL}/logstash-forwarder.crt
-  curl -L $KV_URL/v2/keys/logstash/ssl_private_key -XPUT --data-urlencode value@${LS_SSL}/logstash-forwarder.key
+  curl -L $KV_URL/v2/keys/services/logging/logstash/ssl_certificate -XPUT --data-urlencode value@${LS_SSL}/logstash-forwarder.crt
+  curl -L $KV_URL/v2/keys/services/logging/logstash/ssl_private_key -XPUT --data-urlencode value@${LS_SSL}/logstash-forwarder.key
 else
   # Assume it's consul KV otherwise
-  curl -L $KV_URL/v1/kv/logstash/ssl_certificate -XPUT --data-urlencode value@${LS_SSL}/logstash-forwarder.crt
-  curl -L $KV_URL/v1/kv/logstash/ssl_private_key -XPUT --data-urlencode value@${LS_SSL}/logstash-forwarder.key
+  curl -L $KV_URL/v1/kv/services/logging/logstash/ssl_certificate -XPUT --data-urlencode value@${LS_SSL}/logstash-forwarder.crt
+  curl -L $KV_URL/v1/kv/services/logging/logstash/ssl_private_key -XPUT --data-urlencode value@${LS_SSL}/logstash-forwarder.key
 fi
 #sed -ie "s/-backend etcd -node 127.0.0.1:4001/-backend ${KV_TYPE} -node ${KV_URL}/" /etc/supervisor/conf.d/confd.conf
 
