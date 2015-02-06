@@ -19,25 +19,25 @@ input {
   }
 
   # Get input from Apache logs
-  file {
-    type            => "apache-access"
-    path            => [ "/var/log/apache/access.log" ]
-    start_position  => "beginning"
-  }
+#  file {
+#    type            => "apache-access"
+#    path            => [ "/var/log/apache/access.log" ]
+#    start_position  => "beginning"
+#  }
   # Get input from Nginx logs
-  file {
-    type => "nginx-access"
-    path => [ "/var/log/nginx/access.log" ]
-  }
+#  file {
+#    type => "nginx-access"
+#    path => [ "/var/log/nginx/access.log" ]
+#  }
   # Get input from Tomcat logs
-  file {
-    type => "tomcat"
-    path => [ "/var/log/tomcat/catalina.out" ]
-    codec => multiline {
-      pattern => "(^\d+\serror)|(^.+Exception: .+)|(^\s+at .+)|(^\s+... \d+ more)|(^\s*Caused by:.+)"
-      what => "previous"
-    }
-  }
+#  file {
+#    type => "tomcat"
+#    path => [ "/var/log/tomcat/catalina.out" ]
+#    codec => multiline {
+#      pattern => "(^\d+\serror)|(^.+Exception: .+)|(^\s+at .+)|(^\s+... \d+ more)|(^\s*Caused by:.+)"
+#      what => "previous"
+#    }
+#  }
 
   # Get input from Kafka queue
 #  kafka {
@@ -67,10 +67,6 @@ input {
     port => 5010
     type => "syslog"
   }
-  # Get input from syslog (RFC3164) over 5015
-#  syslog {
-#    port => 5015
-#  }
   # Get Lumberjack over TCP port 5020
   lumberjack {
     port            => 5020
@@ -115,21 +111,21 @@ filter {
   }
 
   # Apache Access Log filter
-  if [type] == "apache-access" {
-    grok {
-      match => { "message" => "%{COMBINEDAPACHELOG}" }
-      }
-  }
+#  if [type] == "apache-access" {
+#    grok {
+#      match => { "message" => "%{COMBINEDAPACHELOG}" }
+#      }
+#  }
   # Nginx Access Log filter
-  if [type] == "nginx-access" {
-    grok {
-      match => { "message" => "%{NGINXACESS}" }
-    }
-  }
+#  if [type] == "nginx-access" {
+#    grok {
+#      match => { "message" => "%{NGINXACCESS}" }
+#    }
+#  }
   # Tomcat filter
-  if [type] == "tomcat" and [message] !~ /(.+)/ {
-    drop { }
-  }
+#  if [type] == "tomcat" and [message] !~ /(.+)/ {
+#    drop { }
+#  }
 
   # Docker filter
   if [type] == "docker" {
