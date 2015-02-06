@@ -156,8 +156,8 @@ output {
 # Send output to Elasticsearch over HTTP interface.
   elasticsearch {
     protocol  => "http"
-    cluster   => "{{ .es_cluster }}"
-    host      => [{{ range getvs "/es/host/*" }} "{{.}}"{{ end }}]
+    cluster   => "{{getv "/services/logging/es/cluster"}}"
+    host      => [{{range getvs "/services/logging/es/host/*"}}"{{.}}"{{end}}]
   }
 
   # Send output to Kafka topic
