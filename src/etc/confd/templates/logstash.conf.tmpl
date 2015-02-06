@@ -161,7 +161,7 @@ output {
   elasticsearch {
     protocol  => "http"
     cluster   => "{{ .es_cluster }}"
-    host      => [{{ range getvs "/es/host/*" }} "{{.}}",{{ end }}]
+    host      => [{{ range getvs "/es/host/*" }} "{{.}}"{{ end }}]
   }
 
   # Send output to Kafka topic
