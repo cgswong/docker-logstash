@@ -13,9 +13,10 @@
 #                           Corrected directory bug.
 # 2015/01/14 cgwong v0.3.0: General cleanup, added more variable usage.
 # 2015/01/28 cgwong v0.4.0: Java 8. Some optimizations to build.
+# 2015/02/20 cgwong v0.5.0: Java 8. Logstash 1.5 (beta).
 # ################################################################
 
-FROM cgswong/java:oracleJDK8
+FROM cgswong/java:orajdk8
 MAINTAINER Stuart Wong <cgs.wong@gmail.com>
 
 # Setup environment
@@ -26,6 +27,7 @@ ENV LS_USER logstash
 ENV LS_GROUP logstash
 ENV LS_EXEC /usr/local/bin/logstash.sh
 ENV LS_SSL /etc/logstash/ssl
+ENV CONFD_VERSION 0.6.3
 
 # Install Logstash and confd
 WORKDIR /opt
@@ -35,15 +37,9 @@ RUN apt-get -yq update && DEBIAN_FRONTEND=noninteractive apt-get -yq install cur
   && rm -rf /var/lib/apt/lists/* \
   && curl -s https://download.elasticsearch.org/logstash/logstash/logstash-${LS_VERSION}.tar.gz | tar zxf - \
   && ln -s logstash-${LS_VERSION} logstash \
-  && mkdir -p ${LS_CFG_DIR} \
-  && curl -sL -o /usr/local/bin/confd https://github.com/kelseyhightower/confd/releases/download/v0.6.3/confd-0.6.3-linux-amd64 \
-  && chmod +x /usr/local/bin/confd \
-  && mkdir -p ${LS_SSL}
-
-# Install some plugins
-# This may not work based on previous testing on this beta release.
-##RUN ${LS_HOME}/bin/plugin install logstash-input-kafka \
-##  && ${LS_HOME}/bin/plugin install logstash-output-kafka
+  && mkdir -p ${LS_CFG_DIR} ${LS_SSL} \
+  && curl -sL -o /usr/local/bin/confd https://github.com/kelseyhightower/confd/releases/download/v${CONFD_VERSION}/confd-${CONFD_VERSION}-linux-amd64 \
+  && chmod +x /usr/local/bin/confd
 
 # Configure environment
 # Copy in files
@@ -54,12 +50,12 @@ RUN groupadd -r ${LS_GROUP} \
   && chown -R ${LS_USER}:${LS_GROUP} ${LS_HOME}/ ${LS_EXEC} ${LS_CFG_DIR} ${LS_SSL} \
   && chmod +x ${LS_EXEC}
 
-# Listen for JSON connections on HTTP port/interface: 5000
-EXPOSE 5000
-# Listen for SYSLOG connections on TCP/UDP 5010, and from logstash-forwarder on 5020
-EXPOSE 5010 5020
-# Listen for Log4j connections on TCP 5025
-EXPOSE 5025
+# Listen for SYSLOG connections on TCP/UDP 5000, and from logstash-forwarder on 5002
+EXPOSE 5000 5002
+# Listen for JSON connections on HTTP port/interface: 5100
+EXPOSE 5100
+# Listen for Log4j connections on TCP 5200
+EXPOSE 5200
 
 ##USER ${LS_USER}
 

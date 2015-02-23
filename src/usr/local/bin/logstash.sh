@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 # #################################################################
 # NAME: logstash.sh
 # DESC: Logstash startup file.
@@ -17,7 +17,7 @@ LS_CFG_FILE=${LS_CFG_FILE:-"/etc/logstash/conf.d/logstash.conf"}
 LS_SSL=/etc/logstash/ssl
 
 KV_TYPE=${KV_TYPE:-etcd}
-KV_HOST=${KV_HOST:-172.17.8.101}
+KV_HOST=${KV_HOST:-localhost}
 if [ "$KV_TYPE" = "etcd" ]; then
   # Set as default for etcd unless otherwise stated
   KV_PORT=${KV_PORT:-4001}
@@ -30,7 +30,7 @@ KV_URL=${KV_HOST}:${KV_PORT}
 echo "[logstash] booting container. KV store: $KV_TYPE"
 
 # Loop until confd has updated the logstash config
-until confd -onetime -backend $KV_TYPE -node $KV_URL -config-file /etc/confd/conf.d/logstash.conf.toml; do
+until confd -onetime -backend $KV_TYPE -node $KV_URL -config-file /etc/confd/conf.d/logstash.toml; do
   echo "[logstash] waiting for confd to refresh logstash.conf (waiting for ElasticSearch to be available)"
   sleep 5
 done
