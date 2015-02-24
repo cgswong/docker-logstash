@@ -2,11 +2,11 @@
 
 This repository contains a **Dockerfile** of [Logstash](http://www.elasticsearch.org/) for [Docker's](https://www.docker.com/) [automated build](https://registry.hub.docker.com/u/cgswong/logstash/) published to the public [Docker Hub Registry](https://registry.hub.docker.com/).
 
-It is usually paired with an Elasticsearch instance (search database) and Kibana (as a frontend). Current Logstash version used is 1.4.2
+It is usually paired with an Elasticsearch instance (search database) and Kibana (as a frontend) to form what is known as an *ELK* stack.
 
 ### Base Docker Image
 
-* [cgswong/java:oracleJDK8](https://registry.hub.docker.com/u/cgswong/java/)
+* [cgswong/java:orajdk8](https://registry.hub.docker.com/u/cgswong/java/)
 
 ### Installation
 
@@ -22,33 +22,38 @@ It is usually paired with an Elasticsearch instance (search database) and Kibana
 
 ### Usage
 Logstash is set to listen for:
-- lines of _JSON_ on TCP port **5000**
-- _SYSLOG_ on TCP and UDP ports **5010**, **5020** (from Logstash Forwarder)
-- Log4J on TCP port **5025**
- 
-Also listens for its local syslog files, and stdin.
+- _SYSLOG_ on TCP and UDP ports **5000** and **5002** from **logstash-forwarder**
+- lines of _JSON_ on TCP port **5100**
+- Log4J on TCP port **5200**
+- stdin (for testing purposes).
 
-You would typically link this container to an Elasticsearch container (alias **es**) that exposes port **9200**. The default `logstash.conf` file uses the Docker linked container environment placeholder **ES_PORT_9200_TCP_ADDR** when using a linked Elasticsearch container. This relies on using the default TCP port (9200) with a container alias of **es**.
+To receive events from **logstash-forwarder** we create a new SSL key pair (if one does not yet exist in our KV store), and store the new certificate and private key in the specified KV store (i.e. either the default etcd or consul). These keys can then be downloaded by any logstash-forwarder process to facilitate configuration. During the systemd startup we register the IP address of Logstash service within the same KV store to make ourselves public to other processes.
 
-The environment variable `ES_CLUSTER_NAME` should be set to the name of the Elasticsearch container (must match the name used in the Elasticsearch configuration file). This can be set using the `-e` flag when executing `docker run`. The default is `es_cluster01`.
+This container requires a dependent Elasticsearch container that also registers itself within the same KV store, using the expected keys of:
 
-You can use your own configuration file by:
+- `/services/logging/es/host`: IPV4 address of Elasticsearch host (may have port as well in format [host]:[port])
+- `/services/logging/es/cluster`: Elasticsearch cluster name
 
-- Setting the `-v` flag when executing `docker run` to mount your own configuration file via the exposed `/opt/logstash/conf` volume.
+We will wait until those keys present themselves, then use **confd** to update the Logstash configuration file `logstash.conf`, setting those values within the file, then starting Logstash.
 
-- Overriding the **LOGSTASH_CFG_URI** environment variable which is set using the `-e` flag when executing `docker run` will download, via wget, your configuration file.
-
-To run logstash and connect to a linked Elasticsearch container (which should ideally be started first):
+A systemd unit file is included (here)[https://github.com/cgswong/docker-logstash/blob/confd/systemd/logstash.service], which shows how this unit would be started via systemd or Fleet (there is an alternate file for consul). To do a default run using etcd:
 
 ```sh
-docker run -d --link elasticsearch:es -p 5000:5000 -p 5010:5010 -p 5020:5020 -p 5025:5025 --name logstash cgswong/logstash
+source /etc/environment
+docker run --rm --name logstash -e KV_HOST=${COREOS_PRIVATE_IPV4} -P cgswong/logstash
+curl -L http://${COREOS_PRIVATE_IPV4}:4001/v2/keys/services/logging/logstash/host/${COREOS_PRIVATE_IPV4} -XPUT -d value="%H"
 ```
 
-You can also use a shared storage volume to load in and use your own **logstash.conf** file:
+Clean up after stopping: `curl -L http://localhost:4001/v2/keys/services/logging/logstash/host/${COREOS_PRIVATE_IPV4} -XDELETE`
 
+To use consul:
 ```sh
-docker run -d --link elasticsearch:es -p 5000:5000 -p 5010:5010 -p 5020:5020 -p 5025:5025 -v /tmp/logstash.conf:/etc/logstash/conf.d/logstash.conf --name logstash cgswong/logstash
+source /etc/environment
+docker run --rm --name logstash -e KV_TYPE=consul -e KV_HOST=${COREOS_PRIVATE_IPV4} -P cgswong/logstash
+curl -L http://${COREOS_PRIVATE_IPV4}:8500/v1/kv/services/logging/logstash/host/${COREOS_PRIVATE_IPV4} -XPUT -d value="%H"
 ```
+
+Clean up after stopping: `curl -L http://${COREOS_PRIVATE_IPV4}:8500/v1/kv/services/logging/logstash/host/${COREOS_PRIVATE_IPV4} -XDELETE`
 
 ### Validation Testing
 To test the setup you will need to send some data to the Logstash container. This can be done as shown below:
@@ -60,7 +65,7 @@ curl -XPOST <container_host>:9200/logstash-2015.01.07/logs/1 -d '{"@timestamp": 
 You can also send some test data using:
 
 ```sh
-echo '{"@timestamp": "2015-01-07T20:11:45.000Z","@version": "1","count": 2048,"average": 1523.33,"host": "elasticsearch.com"}' | nc -w 1  <container_host> 5000
+echo '{"@timestamp": "2015-01-07T20:11:45.000Z","@version": "1","count": 2048,"average": 1523.33,"host": "elasticsearch.com"}' | nc -w 1  <container_host> <logstash_port_on_docker_host>
 ```
 
 To verify the indexes have been created in your Elasticsearch instance:
@@ -69,4 +74,14 @@ To verify the indexes have been created in your Elasticsearch instance:
 curl -s http://<container_host>:9200/_status?pretty=true
 ```
 
-The data should also be available in your Kibana dashboard. Ensure the same date/time period is used when searching as was done in the sample commands.
+The data should also be available in your Kibana dashboard. **Modify the sample date/time periods in the sample commands and ensure the same date/time period is used in Kibana as was done in the sample commands.**
+
+**Note: In a production environment a Riak buffer or Kafka queue should be used between Logstash and Elasticsearch to make sure log events are stored in such mechanisms if Elasticsearch is unavailable.**
+
+### Changing Defaults
+A few environment variables can be passed via the Docker `-e` flag to do some further configuration:
+
+  - KV_TYPE: Sets the type of KV store to use as the backend. Options are etcd (default) and consul.
+  - KV_PORT: Sets the port used in connecting to the KV store which defaults to 4001 for etcd and 8500 for consul.
+
+**Note: The startup procedures previously shown assume you are using CoreOS (with either etcd or consul as your KV store). If you are not using CoreOS then simply substitute the `source /etc/environment` and `${COREOS_PUBLIC_IPV4}` statements with the appropriate OS specific equivalents.**

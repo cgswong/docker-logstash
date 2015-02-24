@@ -9,6 +9,10 @@
 # 2014/11/11 cgwong v0.2.0: Updated environment variables.
 # 2015/01/14 cgwong v0.3.0: Added additional port for remote syslog and filtering.
 # 2015/01/28 cgwong v0.4.0: Clean up Elasticsearch output stream. Add additional plugins.
+<<<<<<< HEAD
+=======
+# 2015/02/20 cgwong v0.5.0: Change ports.
+>>>>>>> confd
 # #####################################################################
 
 # Where to get input
@@ -19,6 +23,7 @@ input {
   }
 
   # Get input from Apache logs
+<<<<<<< HEAD
   file {
     type            => "apache-access"
     path            => [ "/var/log/apache/access.log" ]
@@ -38,6 +43,27 @@ input {
       what => "previous"
     }
   }
+=======
+#  file {
+#    type            => "apache-access"
+#    path            => [ "/var/log/apache/access.log" ]
+#    start_position  => "beginning"
+#  }
+  # Get input from Nginx logs
+#  file {
+#    type => "nginx-access"
+#    path => [ "/var/log/nginx/access.log" ]
+#  }
+  # Get input from Tomcat logs
+#  file {
+#    type => "tomcat"
+#    path => [ "/var/log/tomcat/catalina.out" ]
+#    codec => multiline {
+#      pattern => "(^\d+\serror)|(^.+Exception: .+)|(^\s+at .+)|(^\s+... \d+ more)|(^\s*Caused by:.+)"
+#      what => "previous"
+#    }
+#  }
+>>>>>>> confd
 
   # Get input from Kafka queue
 #  kafka {
@@ -51,6 +77,7 @@ input {
 #    decorate_events => true
 #  }
 
+<<<<<<< HEAD
   # Get input over TCP port 5000 as JSON lines
   tcp {
     type  => "json"
@@ -81,6 +108,34 @@ input {
   # Get application logs via log4j over TCP port 5025
   log4j {
     port => 5025
+=======
+  # Get input over TCP port 5100 as JSON lines
+  tcp {
+    type  => "json"
+    port  => 5100
+    codec => json_lines
+  }
+
+  # Get input from syslog over port 5000
+  tcp {
+    port => 5000
+    type => "syslog"
+  }
+  udp {
+    port => 5000
+    type => "syslog"
+  }
+  # Get Lumberjack over TCP port 5002
+  lumberjack {
+    port            => 5002
+    ssl_certificate => "/etc/logstash/ssl/logstash-forwarder.crt"
+    ssl_key         => "/etc/logstash/ssl/logstash-forwarder.key"
+    type            => "syslog"
+  }
+  # Get application logs via log4j over TCP port 5200
+  log4j {
+    port => 5200
+>>>>>>> confd
   }
 }
 
@@ -115,6 +170,7 @@ filter {
   }
 
   # Apache Access Log filter
+<<<<<<< HEAD
   if [type] == "apache-access" {
     grok { 
       match => { "message" => "%{COMBINEDAPACHELOG}" }
@@ -130,6 +186,23 @@ filter {
   if [type] == "tomcat" and [message] !~ /(.+)/ {
     drop { }
   }
+=======
+#  if [type] == "apache-access" {
+#    grok {
+#      match => { "message" => "%{COMBINEDAPACHELOG}" }
+#      }
+#  }
+  # Nginx Access Log filter
+#  if [type] == "nginx-access" {
+#    grok {
+#      match => { "message" => "%{NGINXACCESS}" }
+#    }
+#  }
+  # Tomcat filter
+#  if [type] == "tomcat" and [message] !~ /(.+)/ {
+#    drop { }
+#  }
+>>>>>>> confd
 
   # Docker filter
   if [type] == "docker" {
@@ -159,10 +232,17 @@ output {
 
 # Send output to Elasticsearch over HTTP interface.
   elasticsearch {
+<<<<<<< HEAD
     protocol  => 'http'
     host      => "{{getv "/es/port/9200/tcp/addr"}}"
     port      => "{{getv "/es/port/9200/tcp/port"}}"
     cluster   => "{{getv "/es/cluster/name"}}"
+=======
+    protocol  => "http"
+    cluster   => "{{getv "/services/logging/es/cluster"}}"
+    host      => ["{{ls "/services/logging/es/host"}}:9300"]
+    port      => "9200"
+>>>>>>> confd
   }
 
   # Send output to Kafka topic
@@ -196,7 +276,14 @@ output {
 #    timing  => [ "tomcat.indextime", "%{indextime}" ]
 #  }
 
+<<<<<<< HEAD
 # Send output metrics to graphite for graphing 
 ##  graphite {
 ##  }
 }
+=======
+# Send output metrics to graphite for graphing
+##  graphite {
+##  }
+}
+>>>>>>> confd
