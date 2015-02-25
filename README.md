@@ -12,9 +12,9 @@ It is usually paired with an Elasticsearch instance (search database) and Kibana
 
 1. Install [Docker](https://www.docker.com/).
 
-2. Download [automated build](https://registry.hub.docker.com/u/cgswong/logstash/) from public [Docker Hub Registry](https://registry.hub.docker.com/): `docker pull cgswong/logstash`
+2. Download [automated build](https://registry.hub.docker.com/u/cgswong/logstash/) from public [Docker Hub Registry](https://registry.hub.docker.com/): `docker pull cgswong/logstash:confd`
 
-   (alternatively, you can build an image from Dockerfile: `docker build -t="cgswong/logstash" github.com/cgswong/docker-logstash`)
+   (alternatively, you can build an image from Dockerfile: `docker build -t="cgswong/logstash:confd" github.com/cgswong/docker-logstash`)
 
 ### Usage
 Logstash is set to listen for:
@@ -38,7 +38,7 @@ A systemd unit file is included (here)[https://github.com/cgswong/docker-logstas
 
 ```sh
 source /etc/environment
-docker run --rm --name logstash -e KV_HOST=${COREOS_PRIVATE_IPV4} -P cgswong/logstash
+docker run --rm --name logstash -e KV_HOST=${COREOS_PRIVATE_IPV4} -P cgswong/logstash:confd
 curl -L http://${COREOS_PRIVATE_IPV4}:4001/v2/keys/services/logging/logstash/host/${COREOS_PRIVATE_IPV4} -XPUT -d value="%H"
 ```
 
@@ -47,7 +47,7 @@ Clean up after stopping: `curl -L http://localhost:4001/v2/keys/services/logging
 To use consul:
 ```sh
 source /etc/environment
-docker run --rm --name logstash -e KV_TYPE=consul -e KV_HOST=${COREOS_PRIVATE_IPV4} -P cgswong/logstash
+docker run --rm --name logstash -e KV_TYPE=consul -e KV_HOST=${COREOS_PRIVATE_IPV4} -P cgswong/logstash:confd
 curl -L http://${COREOS_PRIVATE_IPV4}:8500/v1/kv/services/logging/logstash/host/${COREOS_PRIVATE_IPV4} -XPUT -d value="%H"
 ```
 
@@ -59,4 +59,4 @@ A few environment variables can be passed via the Docker `-e` flag to do some fu
   - KV_TYPE: Sets the type of KV store to use as the backend. Options are etcd (default) and consul.
   - KV_PORT: Sets the port used in connecting to the KV store which defaults to 4001 for etcd and 8500 for consul.
 
-**Note: The startup procedures previously shown assume you are using CoreOS (with either etcd or consul as your KV store). If you are not using CoreOS then simply substitute the `source /etc/environment` and `${COREOS_PUBLIC_IPV4}` statements with the appropriate OS specific equivalents.**
+**Note: The startup procedures previously shown assume you are using CoreOS (with either etcd or consul as your KV store). If you are not using CoreOS then simply substitute the CoreOS specific statements with the appropriate OS specific equivalents.**

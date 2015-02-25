@@ -18,9 +18,9 @@ EnvironmentFile=/etc/environment
 ExecStop=-/usr/bin/docker stop %p
 ExecStop=-/usr/bin/docker kill %p
 
-ExecStartPre=/usr/bin/docker pull cgswong/logstash
+ExecStartPre=/usr/bin/docker pull cgswong/logstash:confd
 
-ExecStart=/usr/bin/docker run --rm --name %p -P -e KV_HOST=${COREOS_PRIVATE_IPV4} -e KV_TYPE=consul cgswong/logstash
+ExecStart=/usr/bin/docker run --rm --name %p -P -e KV_HOST=${COREOS_PRIVATE_IPV4} -e KV_TYPE=consul cgswong/logstash:confd
 
 ExecStartPost=/usr/bin/curl -L http://${COREOS_PRIVATE_IPV4}:8500/v1/kv/services/logging/logstash/host/${COREOS_PRIVATE_IPV4} -XPUT -d value="%H"
 

@@ -17,7 +17,7 @@ LS_CFG_FILE=${LS_CFG_FILE:-"/etc/logstash/conf.d/logstash.conf"}
 LS_SSL=/etc/logstash/ssl
 
 KV_TYPE=${KV_TYPE:-etcd}
-KV_HOST=${KV_HOST:-localhost}
+KV_HOST=${KV_HOST:-127.0.0.1}
 if [ "$KV_TYPE" = "etcd" ]; then
   # Set as default for etcd unless otherwise stated
   KV_PORT=${KV_PORT:-4001}
@@ -51,13 +51,10 @@ else
   curl -L $KV_URL/v1/kv/services/logging/logstash/ssl_certificate -XPUT --data-urlencode value@${LS_SSL}/logstash-forwarder.crt
   curl -L $KV_URL/v1/kv/services/logging/logstash/ssl_private_key -XPUT --data-urlencode value@${LS_SSL}/logstash-forwarder.key
 fi
-#sed -ie "s/-backend etcd -node 127.0.0.1:4001/-backend ${KV_TYPE} -node ${KV_URL}/" /etc/supervisor/conf.d/confd.conf
 
-# if `docker run` first argument start with `--` the user is passing launcher arguments
-if [[ $# -lt 1 ]] || [[ "$1" == "--"* ]]; then
-  exec ${LS_HOME}/bin/logstash -f ${LS_CFG_FILE} "$@"
-#  /usr/bin/supervisord -c /etc/supervisor/supervisord.conf
-fi
+sed -ie "s/-backend etcd -node 127.0.0.1:4001/-backend ${KV_TYPE} -node ${KV_URL}/" /etc/supervisor/conf.d/confd.conf
+
+/usr/bin/supervisord -c /etc/supervisor/supervisord.conf
 
 # As argument is not Logstash, assume user want to run his own process, for sample a `bash` shell to explore this image
 exec "$@"
