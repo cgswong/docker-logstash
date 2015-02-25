@@ -14,51 +14,6 @@
 
 # Where to get input
 input {
-  # Get input from standard input device/interface
-  stdin {
-    type => "stdin-type"
-  }
-
-  # Get input from Apache logs
-#  file {
-#    type            => "apache-access"
-#    path            => [ "/var/log/apache/access.log" ]
-#    start_position  => "beginning"
-#  }
-  # Get input from Nginx logs
-#  file {
-#    type => "nginx-access"
-#    path => [ "/var/log/nginx/access.log" ]
-#  }
-  # Get input from Tomcat logs
-#  file {
-#    type => "tomcat"
-#    path => [ "/var/log/tomcat/catalina.out" ]
-#    codec => multiline {
-#      pattern => "(^\d+\serror)|(^.+Exception: .+)|(^\s+at .+)|(^\s+... \d+ more)|(^\s*Caused by:.+)"
-#      what => "previous"
-#    }
-#  }
-
-  # Get input from Kafka queue
-#  kafka {
-#    zk_connect => "kafka1.mmlac.com:2181"
-#    group_id => "logs"
-#    topic_id => "logstash"
-#    reset_beginning => false
-#    consumer_threads => 1
-#    consumer_restart_on_error => true
-#    consumer_restart_sleep_ms => 100
-#    decorate_events => true
-#  }
-
-  # Get input over TCP port 5100 as JSON lines
-  tcp {
-    type  => "json"
-    port  => 5100
-    codec => json_lines
-  }
-
   # Get input from syslog over port 5000
   tcp {
     port => 5000
@@ -80,6 +35,12 @@ input {
     port  => 5004
     codec => json_lines
     type  => "systemd"
+  }
+  # Get input over TCP port 5100 as JSON lines
+  tcp {
+    type  => "json"
+    port  => 5100
+    codec => json_lines
   }
   # Get application logs via log4j over TCP port 5200
   log4j {
@@ -122,23 +83,6 @@ filter {
     mutate { rename => [ "_SYSTEMD_UNIT", "program" ] }
   }
 
-  # Apache Access Log filter
-#  if [type] == "apache-access" {
-#    grok {
-#      match => { "message" => "%{COMBINEDAPACHELOG}" }
-#      }
-#  }
-  # Nginx Access Log filter
-#  if [type] == "nginx-access" {
-#    grok {
-#      match => { "message" => "%{NGINXACCESS}" }
-#    }
-#  }
-  # Tomcat filter
-#  if [type] == "tomcat" and [message] !~ /(.+)/ {
-#    drop { }
-#  }
-
   # Docker filter
   if [type] == "docker" {
     json {
@@ -173,17 +117,6 @@ output {
     port      => "9200"
   }
 
-  # Send output to Kafka topic
-#  kafka {
-#    codec => plain {
-#      format => "%{message}"
-#    }
-#  }
-
-# Send output to AWS CloudWatch
-#  cloudwatch {
-#  }
-
 # Send output metrics to statsd for statistics aggregation
 #  statsd {
     # Count one hit every event by response
@@ -203,8 +136,4 @@ output {
 #    host    => 'graphite.example.org'
 #    timing  => [ "tomcat.indextime", "%{indextime}" ]
 #  }
-
-# Send output metrics to graphite for graphing
-##  graphite {
-##  }
 }

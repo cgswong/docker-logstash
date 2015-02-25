@@ -26,7 +26,7 @@ LS_HOME=${LS_HOME:-/opt/logstash}
 LS_CFG_FILE=${LS_CFG_FILE:-"/etc/logstash/conf.d/logstash.conf"}
 
 KV_TYPE=${KV_TYPE:-etcd}
-KV_HOST=${KV_HOST:-localhost}
+KV_HOST=${KV_HOST:-127.0.0.1}
 if [ "$KV_TYPE" = "etcd" ]; then
   # Set as default for etcd unless otherwise stated
   KV_PORT=${KV_PORT:-4001}
