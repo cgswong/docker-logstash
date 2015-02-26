@@ -34,7 +34,7 @@ We will wait until those keys present themselves, then use **confd** to update t
 
 **Note: In a production environment a Riak buffer or Kafka queue should be used between Logstash and Elasticsearch to make sure log events are stored in such mechanisms if Elasticsearch is unavailable.**
 
-A systemd unit file is included (here)[https://github.com/cgswong/docker-logstash/blob/confd/systemd/logstash.service], which shows how this unit would be started via systemd or Fleet (there is an alternate file for consul). To do a default run using etcd:
+A systemd unit file is included in this repo which shows how this unit would be started via systemd or Fleet (there is an alternate file for consul). To do a default run using etcd:
 
 ```sh
 source /etc/environment
