@@ -21,7 +21,6 @@ Logstash is set to listen for:
 - _SYSLOG_ on TCP and UDP ports **5000** and **5002** from **logstash-forwarder**
 - lines of _JSON_ on TCP port **5100**
 - Log4J on TCP port **5200**
-- stdin (for testing purposes).
 
 To receive events from **logstash-forwarder** we create a new SSL key pair (if one does not yet exist in our KV store), and store the new certificate and private key in the specified KV store (i.e. either the default etcd or consul). These keys can then be downloaded by any logstash-forwarder process to facilitate configuration. During the systemd startup we register the IP address of Logstash service within the same KV store to make ourselves public to other processes.
 
