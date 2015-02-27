@@ -25,7 +25,6 @@ Logstash is set to listen for:
 - _SYSLOG_ on TCP and UDP ports **5000** and **5002** from **logstash-forwarder**
 - lines of _JSON_ on TCP port **5100**
 - Log4J on TCP port **5200**
-- stdin (for testing purposes).
 
 To receive events from **logstash-forwarder** we create a new SSL key pair (if one does not yet exist in our KV store), and store the new certificate and private key in the specified KV store (i.e. either the default etcd or consul). These keys can then be downloaded by any logstash-forwarder process to facilitate configuration. During the systemd startup we register the IP address of Logstash service within the same KV store to make ourselves public to other processes.
 
@@ -36,7 +35,7 @@ This container requires a dependent Elasticsearch container that also registers 
 
 We will wait until those keys present themselves, then use **confd** to update the Logstash configuration file `logstash.conf`, setting those values within the file, then starting Logstash.
 
-A systemd unit file is included (here)[https://github.com/cgswong/docker-logstash/blob/confd/systemd/logstash.service], which shows how this unit would be started via systemd or Fleet (there is an alternate file for consul). To do a default run using etcd:
+A systemd unit file is included, which shows how this unit would be started via systemd or Fleet (there is an alternate file for consul). To do a default run using etcd:
 
 ```sh
 source /etc/environment
@@ -59,12 +58,6 @@ Clean up after stopping: `curl -L http://${COREOS_PRIVATE_IPV4}:8500/v1/kv/servi
 To test the setup you will need to send some data to the Logstash container. This can be done as shown below:
 
 ```sh
-curl -XPOST <container_host>:9200/logstash-2015.01.07/logs/1 -d '{"@timestamp": "2015-01-07T20:11:45.000Z","@version": "1","count": 2048,"average": 1523.33,"host": "elasticsearch.com"}'
-```
-
-You can also send some test data using:
-
-```sh
 echo '{"@timestamp": "2015-01-07T20:11:45.000Z","@version": "1","count": 2048,"average": 1523.33,"host": "elasticsearch.com"}' | nc -w 1  <container_host> <logstash_port_on_docker_host>
 ```
 
@@ -74,9 +67,11 @@ To verify the indexes have been created in your Elasticsearch instance:
 curl -s http://<container_host>:9200/_status?pretty=true
 ```
 
-The data should also be available in your Kibana dashboard. **Modify the sample date/time periods in the sample commands and ensure the same date/time period is used in Kibana as was done in the sample commands.**
+The data should also be available in your Kibana dashboard.
 
-**Note: In a production environment a Riak buffer or Kafka queue should be used between Logstash and Elasticsearch to make sure log events are stored in such mechanisms if Elasticsearch is unavailable.**
+>>Note:
+>>- Modify the sample date/time periods in the sample commands and ensure the same date/time period is used in Kibana as was done in the sample commands.
+>>- In a production environment a Riak buffer or Kafka queue should be used between Logstash and Elasticsearch to make sure log events are stored in such mechanisms if Elasticsearch is unavailable.
 
 ### Changing Defaults
 A few environment variables can be passed via the Docker `-e` flag to do some further configuration:
@@ -84,4 +79,4 @@ A few environment variables can be passed via the Docker `-e` flag to do some fu
   - KV_TYPE: Sets the type of KV store to use as the backend. Options are etcd (default) and consul.
   - KV_PORT: Sets the port used in connecting to the KV store which defaults to 4001 for etcd and 8500 for consul.
 
-**Note: The startup procedures previously shown assume you are using CoreOS (with either etcd or consul as your KV store). If you are not using CoreOS then simply substitute the `source /etc/environment` and `${COREOS_PUBLIC_IPV4}` statements with the appropriate OS specific equivalents.**
+**Note: The startup procedures previously shown assume you are using CoreOS (with either etcd or consul as your KV store). If you are not using CoreOS then simply substitute the CoreOS specific statements with the appropriate OS specific equivalents.**
