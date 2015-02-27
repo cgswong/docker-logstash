@@ -53,6 +53,7 @@ else
 fi
 
 sed -ie "s/-backend etcd -node 127.0.0.1:4001/-backend ${KV_TYPE} -node ${KV_URL}/" /etc/supervisor/conf.d/confd.conf
+sed -ie "s/-backend etcd -node 127.0.0.1:4001/-backend ${KV_TYPE} -node ${KV_URL}/" /etc/supervisor/supervisord.conf
 
 /usr/bin/supervisord -c /etc/supervisor/supervisord.conf
 
