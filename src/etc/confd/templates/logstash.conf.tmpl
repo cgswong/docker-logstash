@@ -113,7 +113,7 @@ output {
   elasticsearch {
     protocol  => "http"
     cluster   => {{getv "/services/logging/es/cluster"}}
-    host      => ["{{range ls "/services/logging/es/host"}}{{.}}{{end}}:9300"]
+    host      => ["{{range ls "/services/logging/es/host"}}{{.}}{{end}}:9200"]
     port      => "9200"
   }
 
