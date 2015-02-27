@@ -57,6 +57,7 @@ sed -ie "s/-backend etcd -node 127.0.0.1:4001/-backend ${KV_TYPE} -node ${KV_URL
 
 # if `docker run` first argument start with `--` the user is passing launcher arguments
 if [[ $# -lt 1 ]] || [[ "$1" == "--"* ]]; then
+  ${LS_HOME}/bin/logstash -t -f ${LS_CFG_FILE}
   exec ${LS_HOME}/bin/logstash agent -f ${LS_CFG_FILE} "$@"
 #  /usr/bin/supervisord -c /etc/supervisor/supervisord.conf
 fi
