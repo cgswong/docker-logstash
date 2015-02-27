@@ -55,7 +55,11 @@ fi
 sed -ie "s/-backend etcd -node 127.0.0.1:4001/-backend ${KV_TYPE} -node ${KV_URL}/" /etc/supervisor/conf.d/confd.conf
 sed -ie "s/-backend etcd -node 127.0.0.1:4001/-backend ${KV_TYPE} -node ${KV_URL}/" /etc/supervisor/supervisord.conf
 
-/usr/bin/supervisord -c /etc/supervisor/supervisord.conf
+# if `docker run` first argument start with `--` the user is passing launcher arguments
+if [[ $# -lt 1 ]] || [[ "$1" == "--"* ]]; then
+  exec ${LS_HOME}/bin/logstash agent -f ${LS_CFG_FILE} "$@"
+#  /usr/bin/supervisord -c /etc/supervisor/supervisord.conf
+fi
 
 # As argument is not Logstash, assume user want to run his own process, for sample a `bash` shell to explore this image
 exec "$@"
