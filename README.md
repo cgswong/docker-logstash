@@ -19,6 +19,7 @@ It is usually paired with an Elasticsearch instance (search database) and Kibana
 ### Usage
 Logstash is set to listen for:
 - _SYSLOG_ on TCP and UDP ports **5000** and **5002** from **logstash-forwarder**
+- _SYSTEMD_ journals (such as from CoreOS) on TCP ports **5004**
 - lines of _JSON_ on TCP port **5100**
 - Log4J on TCP port **5200**
 

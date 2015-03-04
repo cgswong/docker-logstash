@@ -10,7 +10,7 @@ After=docker.service
 After=fleet.service
 
 [Service]
-TimeoutStartSec=0
+TimeoutStartSec=10m
 
 # Get CoreOS environmental variables
 EnvironmentFile=/etc/environment

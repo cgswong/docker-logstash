@@ -14,6 +14,7 @@
 # 2015/01/14 cgwong v0.3.0: General cleanup, added more variable usage.
 # 2015/01/28 cgwong v0.4.0: Java 8. Some optimizations to build.
 # 2015/02/20 cgwong v0.5.0: Java 8. Logstash 1.5 (beta).
+# 2015/03/04 cgwong v1.0.0: Bump confd version, comment edits.
 # ################################################################
 
 FROM cgswong/java:orajdk8
@@ -27,7 +28,7 @@ ENV LS_USER logstash
 ENV LS_GROUP logstash
 ENV LS_EXEC /usr/local/bin/logstash.sh
 ENV LS_SSL /etc/logstash/ssl
-ENV CONFD_VERSION 0.6.3
+ENV CONFD_VERSION 0.7.1
 
 # Install Logstash and confd
 WORKDIR /opt
@@ -51,11 +52,13 @@ RUN groupadd -r ${LS_GROUP} \
   && chown -R ${LS_USER}:${LS_GROUP} ${LS_HOME}/ ${LS_EXEC} ${LS_CFG_DIR} ${LS_SSL} \
   && chmod +x ${LS_EXEC}
 
-# Listen for SYSLOG connections on TCP/UDP 5000, and from logstash-forwarder on 5002
+# Listen for SYSLOG connections on tcp/udp port 5000, and from logstash-forwarder on tcp port 5002
 EXPOSE 5000 5002
-# Listen for JSON connections on HTTP port/interface: 5100
+# Listen for journal connections on tcp port 5004
+EXPOSE 5004
+# Listen for JSON connections on tcp port 5100
 EXPOSE 5100
-# Listen for Log4j connections on TCP 5200
+# Listen for Log4j connections on tcp port 5200
 EXPOSE 5200
 
 ##USER ${LS_USER}
