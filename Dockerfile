@@ -14,6 +14,7 @@
 # 2015/01/14 cgwong v0.3.0: General cleanup, added more variable usage.
 # 2015/01/28 cgwong v0.4.0: Java 8. Some optimizations to build.
 # 2015/02/20 cgwong v0.5.0: Java 8. Logstash 1.5 (beta).
+# 2015/03/04 cgwong v1.0.0: Update confd.
 # ################################################################
 
 FROM cgswong/java:orajdk8
@@ -26,7 +27,7 @@ ENV LS_CFG_DIR /etc/logstash/conf.d
 ENV LS_USER logstash
 ENV LS_GROUP logstash
 ENV LS_EXEC /usr/local/bin/logstash.sh
-ENV CONFD_VERSION 0.6.3
+ENV CONFD_VERSION 0.7.1
 
 # Install Logstash and confd
 WORKDIR /opt
