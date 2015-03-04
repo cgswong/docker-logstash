@@ -50,8 +50,8 @@ RUN groupadd -r ${LS_GROUP} \
   && chown -R ${LS_USER}:${LS_GROUP} ${LS_HOME}/ ${LS_EXEC} ${LS_CFG_DIR} \
   && chmod +x ${LS_EXEC}
 
-# Listen for SYSLOG connections on TCP/UDP 5000, and from logstash-forwarder on 5002
-EXPOSE 5000 5002
+# Listen for SYSLOG connections on TCP/UDP 5000
+EXPOSE 5000
 # Listen for JSON connections on HTTP port/interface: 5100
 EXPOSE 5100
 # Listen for Log4j connections on TCP 5200
