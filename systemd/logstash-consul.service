@@ -14,7 +14,6 @@ TimeoutStartSec=10m
 
 # Get CoreOS environmental variables
 EnvironmentFile=/etc/environment
-Environment="ES_CLUSTER=es01"
 
 ExecStop=-/usr/bin/docker stop %p
 ExecStop=-/usr/bin/docker kill %p
