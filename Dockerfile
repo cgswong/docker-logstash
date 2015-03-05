@@ -15,13 +15,14 @@
 # 2015/01/28 cgwong v0.4.0: Java 8. Some optimizations to build.
 # 2015/02/20 cgwong v0.5.0: Java 8. Logstash 1.5 (beta).
 # 2015/03/04 cgwong v1.0.0: Bump confd version, comment edits.
+# 2015/03/05 cgwong v1.1.0: Logstash 1.5.0rc1.1
 # ################################################################
 
 FROM cgswong/java:orajdk8
 MAINTAINER Stuart Wong <cgs.wong@gmail.com>
 
 # Setup environment
-ENV LS_VERSION 1.5.0.beta1
+ENV LS_VERSION 1.5.0.rc1.1
 ENV LS_HOME /opt/logstash
 ENV LS_CFG_DIR /etc/logstash/conf.d
 ENV LS_USER logstash
