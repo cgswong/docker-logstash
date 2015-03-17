@@ -1,62 +1,81 @@
 ## Logstash Dockerfile
+This is a highly configurable [Logstash](https://www.elastic.co/products/logstash) (v1.5rc2) Docker image built using [Docker's automated build](https://registry.hub.docker.com/u/cgswong/logstash/) process and published to the public [Docker Hub Registry](https://registry.hub.docker.com/).
 
-This repository contains a **Dockerfile** of [Logstash](http://www.elasticsearch.org/) for [Docker's](https://www.docker.com/) [automated build](https://registry.hub.docker.com/u/cgswong/logstash/) published to the public [Docker Hub Registry](https://registry.hub.docker.com/).
+It is usually paired with an [Elasticsearch](https://www.elastic.co/products/elasticsearch) instance (document database) and [Kibana](https://www.elastic.co/products/kibana) (as a frontend) to form what is known as an **ELK stack**.
 
-It is usually paired with an Elasticsearch instance (search database) and Kibana (as a frontend) to form what is known as an *ELK* stack.
 
-### Base Docker Image
-
-* [cgswong/java:orajdk8](https://registry.hub.docker.com/u/cgswong/java/)
-
-### Installation
-
-1. Install [Docker](https://www.docker.com/).
-
-2. Download [automated build](https://registry.hub.docker.com/u/cgswong/logstash/) from public [Docker Hub Registry](https://registry.hub.docker.com/): `docker pull cgswong/logstash:confd`
-
-   (alternatively, you can build an image from Dockerfile: `docker build -t="cgswong/logstash:confd" github.com/cgswong/docker-logstash`)
-
-### Usage
-Logstash is set to listen for:
-- _SYSLOG_ on TCP and UDP ports **5000** and **5002** from **logstash-forwarder**
-- _SYSTEMD_ journals (such as from CoreOS) on TCP ports **5004**
-- lines of _JSON_ on TCP port **5100**
-- Log4J on TCP port **5200**
-
-To receive events from **logstash-forwarder** we create a new SSL key pair (if one does not yet exist in our KV store), and store the new certificate and private key in the specified KV store (i.e. either the default etcd or consul). These keys can then be downloaded by any logstash-forwarder process to facilitate configuration. During the systemd startup we register the IP address of Logstash service within the same KV store to make ourselves public to other processes.
-
-This container requires a dependent Elasticsearch container that also registers itself within the same KV store, using the expected keys of:
-
-- `/services/logging/es/host`: IPV4 address of Elasticsearch host (may have port as well in format [host]:[port])
-- `/services/logging/es/cluster`: Elasticsearch cluster name
-
-We will wait until those keys present themselves, then use **confd** to update the Logstash configuration file `logstash.conf`, setting those values within the file, then starting Logstash.
-
-**Note: In a production environment a Riak buffer or Kafka queue should be used between Logstash and Elasticsearch to make sure log events are stored in such mechanisms if Elasticsearch is unavailable.**
-
-A systemd unit file is included in this repo which shows how this unit would be started via systemd or Fleet (there is an alternate file for consul). To do a default run using etcd:
+### How to use this image
+To use an external Elasticsearch container simply set the `ES_CLUSTER`, `ES_HOST` and `ES_PORT` (defaults to 9200) environment variables in the `run` command:
 
 ```sh
-source /etc/environment
-docker run --rm --name logstash -e KV_HOST=${COREOS_PRIVATE_IPV4} -P cgswong/logstash:confd
-curl -L http://${COREOS_PRIVATE_IPV4}:4001/v2/keys/services/logging/logstash/host/${COREOS_PRIVATE_IPV4} -XPUT -d value="%H"
+docker run -d \
+  --env ES_CLUSTER=<es_service_cluster> \
+  --env ES_HOST=<es_service_host> \
+  --env ES_PORT=<es_service_port> \
+  cgswong/logstash
 ```
 
-Clean up after stopping: `curl -L http://localhost:4001/v2/keys/services/logging/logstash/host/${COREOS_PRIVATE_IPV4} -XDELETE`
+[Redis](http://redis.io/) is typically used in larger (production) ELK deployments as a queue or buffer mechanism between log shippers/forwarders and the central Logstash instance. This provides better scale, and guards against losing logs should your central Logstash instance be offline. A Redis output option is provided in the image's default `logstash.conf` file. To use Redis in the default, or your own `logstash.conf` file simple set the `REDIS_HOST` and `REDIS_PORT` (defaults to 6379) environment variables in the `run` command:
 
-To use consul:
 ```sh
-source /etc/environment
-docker run --rm --name logstash -e KV_TYPE=consul -e KV_HOST=${COREOS_PRIVATE_IPV4} -P cgswong/logstash:confd
-curl -L http://${COREOS_PRIVATE_IPV4}:8500/v1/kv/services/logging/logstash/host/${COREOS_PRIVATE_IPV4} -XPUT -d value="%H"
+docker run -d \
+  --env REDIS_HOST=<redis_service_host> \
+  --env REDIS_PORT=<redis_service_port> \
+  cgswong/logstash
 ```
 
-Clean up after stopping: `curl -L http://${COREOS_PRIVATE_IPV4}:8500/v1/kv/services/logging/logstash/host/${COREOS_PRIVATE_IPV4} -XDELETE`
+To combine both output options you would simple include all environment variables in your `run` command:
 
-### Changing Defaults
-A few environment variables can be passed via the Docker `-e` flag to do some further configuration:
+```sh
+docker run -d \
+  --env ES_CLUSTER=<es_service_cluster> \
+  --env ES_HOST=<es_service_host> \
+  --env ES_PORT=<es_service_port> \
+  --env REDIS_HOST=<redis_service_host> \
+  --env REDIS_PORT=<redis_service_port> \
+  cgswong/logstash
+```
 
-  - KV_TYPE: Sets the type of KV store to use as the backend. Options are etcd (default) and consul.
-  - KV_PORT: Sets the port used in connecting to the KV store which defaults to 4001 for etcd and 8500 for consul.
+> Note that this image does a check of any provided `logstash.conf` file and exits with an error status should that check fail.
 
-**Note: The startup procedures previously shown assume you are using CoreOS (with either etcd or consul as your KV store). If you are not using CoreOS then simply substitute the CoreOS specific statements with the appropriate OS specific equivalents.**
+
+### Using external configuration files
+The image supports using external configuration files using:
+
+- Docker host volume mounts using `-v` Docker command line option. The `logstash.conf` file is stored in the exposed directory `/etc/logstash/conf.d`. The [Logstash Forwarder](https://github.com/elastic/logstash-forwarder) directory `/opt/logstash/ssl` is used to store the SSL certificates (`logstash-forwarder.cert`), and keys (`logstash-forwarder.key`).
+- Downloaded using environment variables:
+
+  - LS_CFG_URL: URL pointing to logstash.conf file
+  - LSF_CERT_URL: URL pointing to Logstash Forwarder certificate
+  - LSF_KEY_URL: URL pointing to Logstash Forwarder key
+
+  > The container must be able to access any URL provided, otherwise it will exit with a failure code.
+
+> Note: A Logstash Forwarder certificate and key are always created if nothing is specified in either of the above cases.
+
+
+### Ports
+The provided `logstash.conf` file is set to listen for:
+
+- **syslog**: **5000/tcp** and **5000/udp**
+- **Logstash Forwarder**: **5002/tcp**
+- **systemd** journals (OS logs): **5004/tcp**
+- **JSON lines**: **5100/tcp**
+- **Log4J**: **5200/tcp**
+
+> Note that any port within a Docker image must be appropriately exposed (and mapped) on the Docker host. To avoid port conflicts, a _service discovery_ mechanism must be used and the correct hostname/ip and port on the Docker host passed to remote containers/hosts.
+
+### Doing Service Discovery
+Sample systemd unit files have been provided to show how service discovery could be achieved using this image, assuming the same is being done for the other components in the ELK stack.
+
+- `/services/logging/logstash/host`: The key, hostname (preferrably) or IPV4 address of Logstash host, would be below this directory.
+- `/services/logging/es/<es_service_cluster>/host`: The key, hostname (preferrably) or IPV4 address of each Elasticsearch data node in the specified cluster, would be below this directory. Values would include:
+  - http_port: HTTP port (default 9200)
+  - transport_port: Cluster transport port (default 9300)
+  - host/ipv4: Hostname/ipv4 of specific ES cluster member
+- `/services/logging/es/<es_service_cluster>/proxy`: The key, hostname (preferrably) or IPV4 address of the Elasticsearch proxy node in the specified cluster, would be below this directory. Values would be same as the data nodes:
+- `/services/logging/kibana/host`: The key, hostname (preferrably) or IPV4 address of the Kibana host, would be below this directory.
+
+A side load unit would be used to dynamically update the appropriate key/values based on health checks.
+
+Please refer to the appropriate systemd unit file for further details.
