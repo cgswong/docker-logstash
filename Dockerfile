@@ -13,16 +13,15 @@
 #                           Corrected directory bug.
 # 2015/01/14 cgwong v0.3.0: General cleanup, added more variable usage.
 # 2015/01/28 cgwong v0.4.0: Java 8. Some optimizations to build.
-# 2015/02/20 cgwong v0.5.0: Java 8. Logstash 1.5 (beta).
-# 2015/03/04 cgwong v1.0.0: Bump confd version, comment edits.
-# 2015/03/05 cgwong v1.1.0: Logstash 1.5.0rc1.1
+# 2015/02/02 cgwong v1.0.0: Added curl installation, fixed tar issue. Added src directory for complete copy.
+# 2015/03/25 cgwong v1.1.0: Update to 1.5.0rc2, add confd.
 # ################################################################
 
 FROM cgswong/java:orajdk8
 MAINTAINER Stuart Wong <cgs.wong@gmail.com>
 
 # Setup environment
-ENV LS_VERSION 1.5.0.rc1.1
+ENV LS_VERSION 1.5.0.rc2
 ENV LS_HOME /opt/logstash
 ENV LS_CFG_DIR /etc/logstash/conf.d
 ENV LS_USER logstash
@@ -31,7 +30,7 @@ ENV LS_EXEC /usr/local/bin/logstash.sh
 ENV LS_SSL /etc/logstash/ssl
 ENV CONFD_VERSION 0.7.1
 
-# Install Logstash and confd
+# Install Logstash
 WORKDIR /opt
 RUN apt-get -yq update && DEBIAN_FRONTEND=noninteractive apt-get -yq install \
   curl \
@@ -50,21 +49,15 @@ COPY src/ /
 
 RUN groupadd -r ${LS_GROUP} \
   && useradd -M -r -g ${LS_GROUP} -d ${LS_HOME} -s /sbin/nologin -c "LogStash Service User" ${LS_USER} \
-  && chown -R ${LS_USER}:${LS_GROUP} ${LS_HOME}/ ${LS_EXEC} ${LS_CFG_DIR} ${LS_SSL} \
+  && chown -R ${LS_USER}:${LS_GROUP} ${LS_EXEC} ${LS_HOME}/ ${LS_CFG_DIR} ${LS_SSL} \
   && chmod +x ${LS_EXEC}
 
-# Listen for SYSLOG connections on tcp/udp port 5000, and from logstash-forwarder on tcp port 5002
-EXPOSE 5000 5002
-# Listen for journal connections on tcp port 5004
-EXPOSE 5004
-# Listen for JSON connections on tcp port 5100
-EXPOSE 5100
-# Listen for Log4j connections on tcp port 5200
-EXPOSE 5200
+# Listen for SYSLOG on tcp/udp:5000, logstash-forwarder on tcp:5002, systemd journal on tcp:5004, JSON on tcp:5100, Log4j on tcp:5200
+EXPOSE 5000 5002 5004 5100 5200
 
-##USER ${LS_USER}
+#USER ${LS_USER}
 
-# Expose volumes
+# Expose as volume
 VOLUME ["${LS_CFG_DIR}", "${LS_SSL}"]
 
 CMD ["/usr/local/bin/logstash.sh"]
