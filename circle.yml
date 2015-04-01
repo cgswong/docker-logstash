@@ -1,0 +1,22 @@
+machine:
+  services:
+    - docker
+
+dependencies:
+  cache_directories:
+    - "~/docker"
+  override:
+    - docker info
+    - if [ -e ~/docker/image.tar ]; then docker load --input ~/docker/image.tar; fi
+    - docker build -t cgswong/logstash .
+    - mkdir -p ~/docker; docker save cgswong/logstash > ~/docker/image.tar
+
+test:
+  override:
+    - docker run -d --publish 5000:5000 --publish 5000:5000/udp --publish 5002:5002 --publish 5004:5004 --publish 5100:5100 --publish 5200:5200 cgswong/logstash; sleep 10
+
+deployment:
+  hub:
+    branch: v1.5.0
+    commands:
+      - $DEPLOY
