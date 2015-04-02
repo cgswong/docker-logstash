@@ -17,6 +17,6 @@ test:
 
 deployment:
   hub:
-    branch: master
+    branch: release
     commands:
       - $DEPLOY
