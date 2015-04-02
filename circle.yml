@@ -17,6 +17,6 @@ test:
 
 deployment:
   hub:
-    branch: v1.5.0
+    branch: master
     commands:
       - $DEPLOY
