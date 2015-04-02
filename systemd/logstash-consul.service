@@ -3,33 +3,48 @@ Description=Logstash
 
 # Requirements
 Requires=docker.service
-Requires=fleet.service
+Requires=consul.service
+#Requires=fleet.service
 
 # Dependency ordering and binding
 After=docker.service
-After=fleet.service
+After=consul.service
+#After=fleet.service
 
 [Service]
-TimeoutStartSec=0
+TimeoutStartSec=10m
+Restart=on-failure
+RestartSec=5s
 
 # Get CoreOS environmental variables
 EnvironmentFile=/etc/environment
 Environment="ES_CLUSTER=es01"
 
-ExecStop=-/usr/bin/docker stop %p
-ExecStop=-/usr/bin/docker kill %p
+ExecStartPre=-/usr/bin/docker stop %p
+ExecStartPre=-/usr/bin/docker kill %p
+ExecStartPre=/usr/bin/docker pull monsantoco/logstash
 
-ExecStartPre=/usr/bin/docker pull cgswong/logstash
+ExecStart=/usr/bin/docker run --name %p \
+  --publish 5000:5000 \
+  --publish 5000:5000/udp \
+  --publish 5002:5002 \
+  --publish 5004:5004 \
+  --publish 5100:5100 \
+  --publish 5200:5200 \
+  --env ES_CLUSTER=es01 \
+  --env KV_HOST=${COREOS_PRIVATE_IPV4} \
+  monsantoco/logstash
 
-ExecStart=/usr/bin/docker run --rm --name %p -P -e KV_HOST=${COREOS_PRIVATE_IPV4} -e KV_TYPE=consul cgswong/logstash
-
-ExecStartPost=/usr/bin/curl -L http://${COREOS_PRIVATE_IPV4}:8500/v1/kv/services/logging/logstash/host/${COREOS_PRIVATE_IPV4} -XPUT -d value="%H"
+ExecStartPost=/usr/bin/curl -L http://${COREOS_PRIVATE_IPV4}:8500/v1/kv/services/logging/logstash/host/${COREOS_PRIVATE_IPV4} -XPUT -d "%H"
 
 ExecStop=-/usr/bin/docker stop %p
 ExecStop=-/usr/bin/docker kill %p
 ExecStop=-/usr/bin/docker rm %p
 
 ExecStopPost=/usr/bin/curl -L http://${COREOS_PRIVATE_IPV4}:8500/v1/kv/services/logging/logstash/host/${COREOS_PRIVATE_IPV4} -XDELETE
+
+[Install]
+WantedBy=multi-user.target
 
 [X-Fleet]
 Conflicts=%p.service
