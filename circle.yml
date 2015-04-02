@@ -8,12 +8,12 @@ dependencies:
   override:
     - docker info
     - if [ -e ~/docker/image.tar ]; then docker load --input ~/docker/image.tar; fi
-    - docker build -t cgswong/logstash:v1.5.0 .
-    - mkdir -p ~/docker; docker save cgswong/logstash:v1.5.0 > ~/docker/image.tar
+    - docker build -t cgswong/logstash .
+    - mkdir -p ~/docker; docker save cgswong/logstash > ~/docker/image.tar
 
 test:
   override:
-    - docker run -d --publish 5000:5000 --publish 5000:5000/udp --publish 5002:5002 --publish 5004:5004 --publish 5100:5100 --publish 5200:5200 cgswong/logstash:v1.5.0; sleep 10
+    - docker run -d --publish 5000:5000 --publish 5000:5000/udp --publish 5002:5002 --publish 5004:5004 --publish 5100:5100 --publish 5200:5200 cgswong/logstash; sleep 10
 
 deployment:
   hub:
