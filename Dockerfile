@@ -14,7 +14,7 @@
 # 2015/01/14 cgwong v0.3.0: General cleanup, added more variable usage.
 # 2015/01/28 cgwong v0.4.0: Java 8. Some optimizations to build.
 # 2015/02/02 cgwong v1.0.0: Added curl installation, fixed tar issue. Added src directory for complete copy.
-# 2015/03/25 cgwong v1.1.0: Update to 1.5.0rc2, add confd.
+# 2015/03/25 cgwong v1.1.0: Update to 1.5.0rc2, add confd, JRE.
 # ################################################################
 
 FROM cgswong/java:orajre8
