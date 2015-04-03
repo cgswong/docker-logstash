@@ -17,7 +17,7 @@
 # 2015/03/25 cgwong v1.1.0: Update to 1.5.0rc2, add confd.
 # ################################################################
 
-FROM cgswong/java:orajdk8
+FROM cgswong/java:orajre8
 MAINTAINER Stuart Wong <cgs.wong@gmail.com>
 
 # Setup environment
