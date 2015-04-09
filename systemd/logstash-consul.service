@@ -24,16 +24,20 @@ ExecStartPre=-/usr/bin/docker stop %p
 ExecStartPre=-/usr/bin/docker kill %p
 ExecStartPre=/usr/bin/docker pull monsantoco/logstash
 
-ExecStart=/usr/bin/docker run --name %p \
+ExecStart=/bin/bash -c "\
+  /usr/bin/docker run --name %p \
   --publish 5000:5000 \
   --publish 5000:5000/udp \
   --publish 5002:5002 \
   --publish 5004:5004 \
   --publish 5100:5100 \
   --publish 5200:5200 \
-  --env ES_CLUSTER=es01 \
-  --env KV_HOST=${COREOS_PRIVATE_IPV4} \
-  monsantoco/logstash
+  --env ES_CLUSTER=${ES_CLUSTER} \
+  --env ES_HOST=elasticsearch-proxy \
+  --env ES_PORT=9200 \
+  --dns $(ip route | awk '/docker0/ { print $NF }') \
+  --dns-search service.consul \
+  monsantoco/logstash"
 
 ExecStartPost=/usr/bin/curl -L http://${COREOS_PRIVATE_IPV4}:8500/v1/kv/services/logging/logstash/host/${COREOS_PRIVATE_IPV4} -XPUT -d "%H"
 

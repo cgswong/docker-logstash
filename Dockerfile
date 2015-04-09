@@ -60,4 +60,5 @@ EXPOSE 5000 5002 5004 5100 5200
 # Expose as volume
 VOLUME ["${LS_CFG_DIR}", "${LS_SSL}"]
 
-CMD ["/usr/local/bin/logstash.sh"]
+ENTRYPOINT ["/usr/local/bin/logstash.sh"]
+CMD [""]
