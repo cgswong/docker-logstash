@@ -4,12 +4,12 @@ Description=Logstash
 # Requirements
 Requires=docker.service
 Requires=etcd.service
-#Requires=fleet.service
+Requires=fleet.service
 
 # Dependency ordering and binding
 After=docker.service
 After=etcd.service
-#After=fleet.service
+After=fleet.service
 
 [Service]
 TimeoutStartSec=10m
@@ -24,16 +24,17 @@ ExecStartPre=-/usr/bin/docker stop %p
 ExecStartPre=-/usr/bin/docker kill %p
 ExecStartPre=/usr/bin/docker pull monsantoco/logstash
 
-ExecStart=/usr/bin/docker run --name %p \
+ExecStart=/bin/bash -c "\
+  /usr/bin/docker run --name %p \
   --publish 5000:5000 \
   --publish 5000:5000/udp \
   --publish 5002:5002 \
   --publish 5004:5004 \
   --publish 5100:5100 \
   --publish 5200:5200 \
-  --env ES_CLUSTER=es01 \
+  --env ES_CLUSTER=${ES_CLUSTER} \
   --env KV_HOST=${COREOS_PRIVATE_IPV4} \
-  monsantoco/logstash
+  monsantoco/logstash"
 
 ExecStartPost=/usr/bin/curl -L http://${COREOS_PRIVATE_IPV4}:4001/v2/keys/services/logging/logstash/host/${COREOS_PRIVATE_IPV4} -XPUT -d value="%H"
 
