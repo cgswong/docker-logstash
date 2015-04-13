@@ -1,6 +1,6 @@
 ## Logstash Dockerfile
 
-[![Circle CI](https://circleci.com/gh/cgswong/docker-logstash.svg?style=svg)](https://circleci.com/gh/cgswong/docker-logstash)
+[![Circle CI](https://circleci.com/gh/cgswong/docker-logstash/tree/master.svg?style=svg)](https://circleci.com/gh/cgswong/docker-logstash/tree/master)
 
 This is a highly configurable [Logstash](https://www.elastic.co/products/logstash) (v1.5) Docker image built using [Docker's automated build](https://registry.hub.docker.com/u/cgswong/logstash/) process and published to the public [Docker Hub Registry](https://registry.hub.docker.com/).
 
