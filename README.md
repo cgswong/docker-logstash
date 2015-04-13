@@ -1,4 +1,7 @@
 ## Logstash Dockerfile
+
+[![Circle CI](https://circleci.com/gh/cgswong/docker-logstash.svg?style=svg)](https://circleci.com/gh/cgswong/docker-logstash)
+
 This is a highly configurable [Logstash](https://www.elastic.co/products/logstash) (v1.5) Docker image built using [Docker's automated build](https://registry.hub.docker.com/u/cgswong/logstash/) process and published to the public [Docker Hub Registry](https://registry.hub.docker.com/).
 
 It is usually paired with an [Elasticsearch](https://www.elastic.co/products/elasticsearch) instance (document database) and [Kibana](https://www.elastic.co/products/kibana) (as a frontend) to form what is known as an **ELK stack**.
