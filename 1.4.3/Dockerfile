@@ -6,7 +6,7 @@ FROM alpine:latest
 MAINTAINER Stuart Wong <cgs.wong@gmail.com>
 
 # Setup environment
-ENV LS_VERSION %%VERSION%%
+ENV LS_VERSION 1.4.3
 ENV LS_HOME /opt/logstash
 ENV LS_CFG_DIR /etc/logstash
 ENV LS_USER logstash
