@@ -44,8 +44,8 @@ RUN apk --update add \
 # Configure environment
 COPY src/ /
 
-# Listen for defaults: 5000/tcp:udp (syslog), 5002/tcp (logstash-forwarder), 5004/tcp (journal), 5006/tcp (docker), 5100/tcp (JSON lines), 5200/tcp (log4j)
-EXPOSE 5000 5002 5004 5006 5100 5200
+# Listen for defaults: 5000/tcp:udp (syslog), 5002/tcp (logstash-forwarder), 5004/tcp (journal), 5006/tcp (docker), 4560/tcp (log4j)
+EXPOSE 5000 5002 5004 5006 4560
 
 # Expose volumes
 VOLUME ["${LS_CFG_DIR}"]
