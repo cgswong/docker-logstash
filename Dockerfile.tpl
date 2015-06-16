@@ -8,7 +8,6 @@ MAINTAINER Stuart Wong <cgs.wong@gmail.com>
 # Setup environment
 ENV LS_VERSION %%VERSION%%
 ENV LS_HOME /opt/logstash
-ENV LS_EXEC /usr/local/bin/logstash.sh
 ENV LS_CFG_DIR /etc/logstash
 ENV LS_USER logstash
 ENV LS_GROUP logstash
