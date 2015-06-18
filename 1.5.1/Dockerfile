@@ -6,7 +6,7 @@ FROM alpine:latest
 MAINTAINER Stuart Wong <cgs.wong@gmail.com>
 
 # Setup environment
-ENV LS_VERSION 1.4.3
+ENV LS_VERSION 1.5.1
 ENV LS_HOME /opt/logstash
 ENV LS_CFG_DIR /etc/logstash
 ENV LS_USER logstash
@@ -32,7 +32,7 @@ RUN apk --update add \
       glibc-2.21-r2.apk \
       glibc-bin-2.21-r2.apk &&\
     /usr/glibc/usr/bin/ldconfig /lib /usr/glibc/usr/lib &&\
-    mkdir -p ${JAVA_BASE} ${LS_CFG_DIR} /opt &&\
+    mkdir -p ${JAVA_BASE} ${LS_CFG_DIR}/ssl ${LS_CFG_DIR}/conf.d  /opt &&\
     curl --silent --insecure --location --header "Cookie: oraclelicense=accept-securebackup-cookie" http://download.oracle.com/otn-pub/java/jdk/${JAVA_VERSION_MAJOR}u${JAVA_VERSION_MINOR}-b${JAVA_VERSION_BUILD}/jdk-${JAVA_VERSION_MAJOR}u${JAVA_VERSION_MINOR}-linux-x64.tar.gz | tar zxf - -C $JAVA_BASE &&\
     ln -s $JAVA_BASE/jdk1.${JAVA_VERSION_MAJOR}.0_${JAVA_VERSION_MINOR} ${JAVA_HOME} &&\
     curl --silent --insecure --location https://download.elasticsearch.org/logstash/logstash/logstash-${LS_VERSION}.tar.gz | tar zxf - -C /opt &&\

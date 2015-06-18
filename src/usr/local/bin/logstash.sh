@@ -94,14 +94,13 @@ checkLSConfig() {
   fi
 }
 
-getLSConfig
-processLSenv
-getLSKeys
-createLSKey
-checkLSConfig
-
 # Run process, if `docker run` first argument start with `--` the user is passing launcher arguments
 if [[ "$1" == "-"* || -z $1 ]]; then
+  getLSConfig
+  processLSenv
+  getLSKeys
+  createLSKey
+  checkLSConfig
   /opt/logstash/bin/logstash -f $LS_CFG_FILE "$@"
 else
   exec "$@"

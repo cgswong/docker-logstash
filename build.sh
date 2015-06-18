@@ -20,12 +20,14 @@ machine-init() {
   # Build test VM if needed
   docker-machine ls -q | grep "${MACHINE}$" >/dev/null
   if [ $? -ne 0 ]; then
+    echo "[CI] ------------------------------------"
     echo "[CI] Creating Docker host (${MACHINE})..."
     docker-machine create --driver virtualbox ${MACHINE}
     eval "$(docker-machine env ${MACHINE})"
   else
     docker-machine ls | grep ${MACHINE} | grep Running >/dev/null
     if [ $? -ne 0 ]; then
+    echo "[CI] ------------------------------------"
       echo "[CI] Starting Docker host (${MACHINE})..."
       docker-machine start ${MACHINE}
     fi
@@ -35,6 +37,7 @@ machine-init() {
 run-builds() {
   # Run builds
   for TAG in "${versions[@]}"; do
+    echo "[CI] ------------------------------------"
     echo "[CI] Building image: ${IMAGE}:${TAG}"
     docker build -t ${IMAGE}:${TAG} ${TAG}/
   done

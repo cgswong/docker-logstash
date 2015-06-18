@@ -1,1 +1,1 @@
-Logstash Docker image based on Alpine Linux w/Oracle JDK 8 (~440 MB).
+Logstash Docker image based on Alpine Linux w/Oracle JDK 8 (~537 MB).
