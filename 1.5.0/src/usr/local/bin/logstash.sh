@@ -74,10 +74,10 @@ processLSenv() {
   for VAR in `env`; do
     if [[ "$VAR" =~ ^LS_ && ! "$VAR" =~ ^LS_CFG_ && ! "$VAR" =~ ^LS_VERSION && ! "$VAR" =~ ^LS_HOME && ! "$VAR" =~ ^LS_USER && ! "$VAR" =~ ^LS_GROUP && ! "$VAR" =~ ^LS_COLORS ]]; then
       LS_CONFIG_VAR=$(echo "$VAR" | sed -r "s/LS_(.*)=.*/\1/g")
-      LS_ENV_VAR=$(echo "$VAR" | sed -r "s/(.*)=.*/\1/g")
+      LS_ENV_VAR=$(echo "$VAR" | sed -r "s/(.*)=(.*)/\2/g" | sed -e 's|,|","|g')
 
       if egrep -q "$LS_CONFIG_VAR" $LS_CFG_FILE; then
-        sed -e -i "s|$LS_CONFIG_VAR|${!LS_ENV_VAR}|g" $LS_CFG_FILE
+        sed -e "s|$LS_CONFIG_VAR|${LS_ENV_VAR}|g" -i $LS_CFG_FILE
       else
         echo "[LS] Substitute variable ${LS_CONFIG_VAR} not found in ${LS_CFG_FILE}."
       fi

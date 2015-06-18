@@ -26,7 +26,6 @@
 }
 
 @test "Confirm Logstash functionality" {
-  skip "WIP"
   host=$(echo $DOCKER_HOST|cut -d":" -f2|sed -e 's/\/\///')
 
   # Launch required ES container
@@ -37,10 +36,12 @@
   sleep 15
 
   # Launch container
-  docker run -d --name ${IMAGE} -P --env LS_ES_HOST=$(echo $es_url | cut -d'/' -f3) ${IMAGE}:${TAG} >/dev/null
+  docker run -d --name ${IMAGE} -P --env LS_ES_CONN_STR=$(echo $es_url | cut -d'/' -f3) ${IMAGE}:${TAG} >/dev/null
   port=$(docker port ${IMAGE} | grep 5000 | cut -d":" -f2)
   url="http://${host}:${port}"
-  run curl -XPOST $host:$port -d '{"@timestamp": "2015-06-09T09:37:45.000Z","@version": "1","count": 2048,"average": 1523.33,"host": "logstash.com"}'
+  run bash -c 'echo '{"@timestamp": "2015-06-09T09:37:45.000Z","@version": "1","count": 2048,"average": 1523.33,"host": "logstash.com"}' | nc -w 1 $host:$port'
   [ $status -eq 0 ]
+  docker kill eslogstash logstash
+  docker rm eslogstash logstash
 }
 
