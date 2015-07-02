@@ -26,17 +26,18 @@ RUN apk --update add \
       python \
       py-pip \
       bash && \
-    curl --silent --insecure --location --remote-name "${PKG_URL}/glibc-2.21-r2.apk" &&\
-    curl --silent --insecure --location --remote-name "${PKG_URL}/glibc-bin-2.21-r2.apk" &&\
+    curl --silent --insecure --location --output /tmp/glibc-2.21-r2.apk "${PKG_URL}/glibc-2.21-r2.apk" &&\
+    curl --silent --insecure --location --output /tmp/glibc-bin-2.21-r2.apk "${PKG_URL}/glibc-bin-2.21-r2.apk" &&\
     apk add --allow-untrusted \
-      glibc-2.21-r2.apk \
-      glibc-bin-2.21-r2.apk &&\
+      /tmp/glibc-2.21-r2.apk \
+      /tmp/glibc-bin-2.21-r2.apk &&\
     /usr/glibc/usr/bin/ldconfig /lib /usr/glibc/usr/lib &&\
     mkdir -p ${JAVA_BASE} ${LS_CFG_DIR}/ssl ${LS_CFG_DIR}/conf.d  /opt &&\
     curl --silent --insecure --location --header "Cookie: oraclelicense=accept-securebackup-cookie" http://download.oracle.com/otn-pub/java/jdk/${JAVA_VERSION_MAJOR}u${JAVA_VERSION_MINOR}-b${JAVA_VERSION_BUILD}/jdk-${JAVA_VERSION_MAJOR}u${JAVA_VERSION_MINOR}-linux-x64.tar.gz | tar zxf - -C $JAVA_BASE &&\
     ln -s $JAVA_BASE/jdk1.${JAVA_VERSION_MAJOR}.0_${JAVA_VERSION_MINOR} ${JAVA_HOME} &&\
     curl --silent --insecure --location https://download.elasticsearch.org/logstash/logstash/logstash-${LS_VERSION}.tar.gz | tar zxf - -C /opt &&\
     ln -s /opt/logstash-${LS_VERSION} ${LS_HOME} &&\
+    rm -rf /tmp/* &&\
     addgroup ${LS_GROUP} &&\
     adduser -h ${LS_HOME} -D -s /bin/bash -G ${LS_GROUP} ${LS_USER} &&\
     chown -R ${LS_USER}:${LS_GROUP} ${LS_HOME}/ ${LS_CFG_DIR}
