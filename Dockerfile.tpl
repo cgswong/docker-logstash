@@ -36,5 +36,5 @@ EXPOSE 5000 5002 5004 5006 4560
 # Expose volumes
 VOLUME ["${LS_CFG_BASE_DIR}"]
 
-ENTRYPOINT ["/usr/local/bin/logstash.sh"]
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 CMD [""]
