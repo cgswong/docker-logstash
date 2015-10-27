@@ -101,6 +101,7 @@ if [[ "$1" == "-"* || -z $1 ]]; then
   echo "$(date +"[%F %X,000]")[INFO ][action.admin.container.startup    ] Started with PID: ${pid}"
   wait ${pid}
   trap - SIGTERM SIGINT
-  wait ${pid}else
+  wait ${pid}
+else
   exec "$@"
 fi
