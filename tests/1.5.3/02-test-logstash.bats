@@ -2,7 +2,7 @@
 
 @test "Confirm Logstash version ${VERSION}" {
   run docker run -t --rm --name ${DOCKER_IMAGE} ${DOCKER_IMAGE}:${VERSION} --version
-  [[ ${lines[3]} =~ "logstash ${VERSION}" ]]
+  [[ ${lines[4]} =~ "logstash ${VERSION}" ]]
 }
 
 @test "Validate default Logstash config file" {
